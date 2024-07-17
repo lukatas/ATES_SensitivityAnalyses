@@ -1,9 +1,7 @@
-![png](https://github.com/user-attachments/assets/e360a33a-61ee-4769-9818-3097e63e58e8)
-
 ![Capture6](https://github.com/user-attachments/assets/8953c781-4283-4260-96a5-b4cfb3c10ce3)
 
 
-## About
+## 🔎 About
 
 The scripts can be used to generate and simulate random model realizations of Aquifer Thermal Energy Storage (ATES) systems in two different hydrogeological settings. A jobscript is also provided to run the simulations in parallel on the HPC to alleviate the computational demand.
 
@@ -35,7 +33,7 @@ The scripts can be used to generate and simulate random model realizations of Aq
 
 Scripts to process the output data for the sensitivity analysis are also provided.
 
-## How to use?
+## 📜 How to use?
 
 The output data of all simulations used for the paper “Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses”. can be consulted on Zenodo.
 
@@ -55,14 +53,12 @@ The publicly available MODFLOW 2005 and MT3D-USGS were used for the groundwater 
     
       Bedekar, V., Morway, E.D., Langevin, C.D., and Tonkin, M., 2016, MT3D-USGS version 1.0.0: Groundwater Solute Transport Simulator for MODFLOW: U.S. Geological Survey         Software Release, 30 September 2016, http://dx.doi.org/10.5066/F75T3HKD
 
+## 📌 How to cite?
 
-## How to cite?
-
-
-## Acknowledgemets
-
-
-## Questions
+## 💭 Questions
 
 Don't hesitate to reach out in case of questions!
   link naar github profiel
+
+## :Acknowledgemets
+
