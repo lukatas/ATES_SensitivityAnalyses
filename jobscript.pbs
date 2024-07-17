@@ -1,0 +1,23 @@
+#!/bin/bash -l
+
+#PBS -N test				# job name
+#PBS -l nodes=1 :ppn=36 	# number of requested nodes and cores (up to 8 on debug cluster donphan)
+#PBS -l walltime=72:00:00	# requested walltime (max 72 hrs)
+#PBS -m abe					# get email notifications
+
+# specify python version and set environment variable
+
+module load Python/3.9.6-GCCcore-11.2.0
+export PATH="${VSC_DATA}/miniconda3/bin:${PATH}"
+source activate DGSA_2023
+
+
+#PBS -o stdout.$PBS_JOBID
+#PBS -e stderr.$PBS_JOBID
+
+cd $PBS_O_WORKDIR           # The working directory where I ran qsub
+
+echo Start Job
+date
+./RunParallel.py 
+echo End Job
