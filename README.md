@@ -1,4 +1,4 @@
-# ATES senstivity analyses
+![ATES_Sensitivity_Analysis](https://github.com/user-attachments/assets/6704ff70-4824-4e8d-b769-1c833ef74e5a)
 
 The scripts can be used to generate and simulate random model realizations of Aquifer Thermal Energy Storage (ATES) systems in two different hydrogeological settings. A jobscript is also provided to run the simulations in parallel on the HPC to alleviate the computational demand.
 
