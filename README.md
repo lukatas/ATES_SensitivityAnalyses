@@ -60,5 +60,5 @@ The publicly available MODFLOW 2005 and MT3D-USGS were used for the groundwater 
 Don't hesitate to reach out in case of questions!
   link naar github profiel
 
-## :Acknowledgemets
+## Acknowledgemets
 
