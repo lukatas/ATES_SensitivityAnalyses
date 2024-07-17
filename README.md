@@ -22,19 +22,29 @@ The scripts can be used to generate and simulate random model realizations of Aq
 
 Scripts to process the output data for the sensitivity analysis are also provided.
 
-## How to use
+## How to use?
 
-The output data of all simulations used for the paper can be consulted on Zenodo. 
+The output data of all simulations used for the paper “Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses”. can be consulted on Zenodo.
 
-The choice can also be made to generate new output. Therefore, the input files of the original models can be used, also accessible on Zenodo.
+Alternatively, the choice can be made to generate new output. Therefore, the input files of the original models can be used, also accessible on Zenodo.
 The file paths and uncertainty ranges for each parameter can be adjusted in the config.py file.
 The simulations can also run in parallel on a desktop by adjusting the n_sim and n_cpu parameters and simply running the RunParallel.py script.
 
-## Software versions used
+### Software versions 
 
-The publicly available MODFLOW 2005 and MT3D-USGS were used for the groundwater flow and heat transport simulations. 
+The publicly available MODFLOW 2005 and MT3D-USGS were used for the groundwater flow and heat transport simulations. These were compiled for use on the HPC.
+
   - modflow version 1.12.00
+      Harbaugh, A.W., Langevin, C.D., Hughes, J.D., Niswonger, R.N., and Konikow, L. F., 2017, MODFLOW-2005 version 1.12.00, the U.S. Geological Survey modular groundwater         model: U.S. Geological Survey Software Release, 03 February 2017, http://dx.doi.org/10.5066/F7RF5S7G
   - mt3d-usgs version 1.1.0
+      Bedekar, V., Morway, E.D., Langevin, C.D., and Tonkin, M., 2016, MT3D-USGS version 1.0.0: Groundwater Solute Transport Simulator for MODFLOW: U.S. Geological Survey          Software Release, 30 September 2016, http://dx.doi.org/10.5066/F75T3HKD
+
+
+## How to cite?
+
+
+## Acknowledgemets
+
 
 ## Questions
 
