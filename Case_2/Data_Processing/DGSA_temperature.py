@@ -122,6 +122,19 @@ print(Counter(labels))
 
 #%%
 ''' DGSA calculations '''
+parameters = parameters.to_numpy()
+parameter_names = ['Kh aqf1',
+                   'Kh aqf2',
+                   'Kv aqf1',
+                   'Kv aqf2',
+                   'Gradient',
+                   'Tot. por.',
+                   'Eff. por.',
+                   'Volume',
+                   'Long. disp.',
+                   'T winter',
+                   'T zomer',
+                   'Recharge']
 
 # mean sensitivy averaged across all clusters
 # output = 'mean' (default)
