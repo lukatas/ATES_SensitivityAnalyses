@@ -107,6 +107,8 @@ parameter_names = ['Kh aqf1', 'Kh aqf2', 'Kv aqf1', 'Kv aqf2', 'Grad.', 'Tot. po
 #%%
 
 ''' DGSA calculations '''
+parameters = parameters.to_numpy()
+parameter_names = ['Kh aqf1', 'Kh aqf2', 'Kv aqf1', 'Kv aqf2', 'Grad.', 'Tot. por.', 'Eff. por.', 'Long. disp.']
 
 # mean sensitivy averaged across all clusters
 mean_sensitivity = dgsa(parameters, labels, parameter_names=parameter_names, n_boots=5000)
