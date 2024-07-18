@@ -29,7 +29,9 @@ directories = [os.path.join(directory, d) for d in os.listdir(directory) if
 # Iterate through each directory and read all files starting with 'MTO'
 for d in directories:
     files = [f for f in os.listdir(d) if f.startswith(prefix)]
-
+  
+    # DeltaT (Twarm-Tcold) results can be used for clustering --> get cluster colors (labels) for plots
+  
     for file in files:
         response = pd.read_csv(os.path.join(d, file))
 
@@ -56,13 +58,14 @@ for d in directories:
         else:
             response = response[~response.index.duplicated()]  # remove duplicate indices
             deltaT['{}'.format(directories.index(d))] = response['DeltaT']
-
+          
+    # need model response of warm and cold well also seperately to calculate efficiency later on
+  
     for file in files:
         response = pd.read_csv(os.path.join(d, file))
 
         exact_matches = response[response['Time (d)'].isin(time)]
 
-        # from here on we can skip if we don't need every 0.5 day a value
         missing_times = np.setdiff1d(time, exact_matches['Time (d)'])  # Find missing times
 
         if len(missing_times) > 0:
@@ -75,7 +78,6 @@ for d in directories:
         response['Time (d)'] = response['Time (d)'].round(1)
         response = response.sort_values(by=['Time (d)'])
 
-        # can skip until here
         response.set_index('Time (d)', inplace=True)
 
         if directories.index(d) == 0:
@@ -91,7 +93,6 @@ for d in directories:
 
         exact_matches = response[response['Time (d)'].isin(time)]
 
-        # from here on we can skip if we don't need every 0.5 day a value
         missing_times = np.setdiff1d(time, exact_matches['Time (d)'])  # Find missing times
 
         if len(missing_times) > 0:
@@ -104,7 +105,6 @@ for d in directories:
         response['Time (d)'] = response['Time (d)'].round(1)
         response = response.sort_values(by=['Time (d)'])
 
-        # can skip until here
         response.set_index('Time (d)', inplace=True)
 
         if directories.index(d) == 0:
@@ -124,9 +124,9 @@ for d in directories:
             # parameters = parameters.append(parameters_next, ignore_index=True)
             parameters = pd.concat([parameters, parameters_next], ignore_index=True)
 
-    # calculate power when the flowrate varied every month
-    # need power here because later on we calculate soil energy exchange (share energy through layer above aquifer from ATES produced energy)
-
+    ''' calculate power '''
+    # Rijkevorsel simulations: 3 'short' years, sumer season is about 3.5 months and winter season as well, Q variation per month
+    
     case = deltaT_warm[['{}'.format(directories.index(d))]].copy()
     case['deltaT_warm'] = deltaT_warm['{}'.format(directories.index(d))]
     case['deltaT_cold'] = deltaT_cold['{}'.format(directories.index(d))]
@@ -176,7 +176,7 @@ for d in directories:
              0.002328816,0.001254391,0.00013642,0.000200011,0.000323212,0.000451053,0.000551673,0.000948495,
              0.002328816,0.001254391,0.00013642,0.000200011,0.000323212,0.000451053,0.000551673,0.000948495] #total rates per stress period (3 cycles)
 
-    Q = [rate * 3600 for rate in Q] # m3/h niet Q * 3600 want Q is lijst hier en niet np array!!
+    Q = [rate * 3600 for rate in Q] # m3/h
 
     case['P_extr'] = np.array(Q)[case['month'].astype(int).values] * 1.16 * case['DeltaT_extr']
     case['P_inj'] = np.array(Q)[case['month'].astype(int).values] * 1.16 * case['DeltaT_inj']
@@ -189,15 +189,15 @@ for d in directories:
     P_extr = case["P_extr"].to_numpy()  # get P
     P_inj = case["P_inj"].to_numpy()
 
-    max_seasons = int(case['Seasons'].max()) + 1 # +1 because different numbering for season compared to other case studies ;)
+    max_seasons = int(case['Seasons'].max()) + 1
 
-    # integrate injection and extraction power over time (every time the 6 months interval) to get the energy
+    # integrate injection and extraction power over time to get the energy
     E_extr = np.zeros(max_seasons)
     for s in range(max_seasons):
-        when = np.where(seasons == s)[0]  # when is the season s #get indices to get data from power for this all months of this season
+        when = np.where(seasons == s)[0]  #get indices to get data from power for this all months of this season
         pim = P_extr[when]  # get power at all months from season s
-        dam = hours[when]  # get corresponding hours (need to integrate over this time in hours)
-
+        dam = hours[when]  # get corresponding hours 
+      
         # integrate here
         funpow = interpolate.interp1d(dam, pim)
         powint, abse = integrate.quad(funpow, dam[0], dam[-1], limit=1000)
@@ -224,13 +224,12 @@ for d in directories:
         E_inj_df = pd.DataFrame(data, columns=column_names, index = [0,1,2,3,4,5])
         E_extr_df = pd.DataFrame(data, columns=column_names, index= [0,1,2,3,4,5])
 
-    E_inj_df[str(directories.index(d))] = E_inj # to check you can calculate this manually as well based on input (deltaT*time (h) * flowrate (m3/h) * 1.16)
+    E_inj_df[str(directories.index(d))] = E_inj # to check you can calculate this manually as well based on input ((T-Tinitial)*time (h) * flowrate (m3/h) * 1.16)
     E_extr_df[str(directories.index(d))] = E_extr
-
 
 parameters = parameters.drop(columns=['Unnamed: 0'])
 
-#%% efficiency
+''' calculate efficiency '''
 for m in range(len(directories)):
     # calculate thermal recovery efficiency
     for s in range(max_seasons):
