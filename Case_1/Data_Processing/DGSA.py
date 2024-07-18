@@ -53,7 +53,6 @@ for d in directories:
         response['Time (d)'] = response['Time (d)'].round(1)
         response = response.sort_values(by = ['Time (d)'])
 
-        # can skip until here
         response.set_index('Time (d)', inplace=True)
 
         if directories.index(d) == 0:
