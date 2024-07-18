@@ -109,3 +109,5 @@ fig, ax = vert_pareto_plot(mean_sensitivity,
 # plt.title('Small area cold well')
 plt.tight_layout()
 plt.show()
+
+# also cluster sensitivity, sensitivity matrix, etc. can be calculated in this way using the pyDGSA package
