@@ -14,12 +14,14 @@ from sklearn.metrics import silhouette_score
 import numpy as np
 from collections import Counter
 
-from Scripts.Sine_input.config import Directories
-from Scripts.Sine_input.utils import T_sine
+from config import Directories
+from utils import T_sine
+plt.rcParams['figure.dpi'] = 400
 
 #made specific rounding function to round to .0 or .5, examples:
 # 116.504 to 116.5: 116.05 to 116.0; 153.11 to 153.0; 153.68 to 153.5
-#(rounding method for Rijkevorsel case study did not work well enough here)
+#(rounding method for Rijkevorsel case study did not work well enough here --> got Nan values)
+
 def round_custom(df):
     df['Time (d)'] = df['Time (d)'] * 10
     df['Time (d)'] = df['Time (d)'].apply(math.floor)
@@ -33,13 +35,12 @@ def round_custom(df):
             df.loc[r, 'Time (d)'] = (df.loc[r, 'Time (d)'] - (df.loc[r, 'Time (d)'] % 5)) / 10
     return df
 
-plt.rcParams['figure.dpi'] = 400
-
 ''' load transport results '''
-directory = os.path.join(Directories.output_dir,'HPC_Short_500_Correct_Tinitial')
+
+directory = os.path.join(Directories.output_dir,'HPC_Short_500')
 prefix = 'MTO'
 prefix2 = 'Parameters'
-time = np.arange(0, (720)+0.5, 0.5)   # times we saved results we want to plot (days)
+time = np.arange(0, (720)+0.5, 0.5)   # times we saved results (days)
 
 # Get a list of all directories in the output directory
 directories = [os.path.join(directory, d) for d in os.listdir(directory) if
@@ -51,10 +52,11 @@ for d in directories:
 
     for file in files:
         response = pd.read_csv(os.path.join(d, file))
+        
+        # times saved are not always exactly the same for each transport simulation
 
         exact_matches = response[response['Time (d)'].isin(time)]
 
-        # from here on we can skip if we don't need every 0.5 day a value
         missing_times = np.setdiff1d(time, exact_matches['Time (d)'])  # Find missing times
 
         if len(missing_times) > 0:
@@ -67,7 +69,6 @@ for d in directories:
         response = round_custom(response)
         response = response.sort_values(by = ['Time (d)'])
 
-        # can skip until here
         response.set_index('Time (d)', inplace=True)
 
         if directories.index(d) == 0:
@@ -103,13 +104,13 @@ def normalize_column(column):
     return (column - column.min()) / (column.max() - column.min())
 parameters = parameters.apply(normalize_column)
 
-#%%
+''' clustering '''
+
 # calculate the euclidean distances between model responses
-deltaT = deltaT.T  # one row for each model instead of one column for each model
+deltaT = deltaT.T  # one row for each model
 distances = pdist(deltaT, metric='euclidean')
 distances = squareform(distances)  # create distance matrix of size models x models
 
-# different clustering method: KMeans
 n_clusters = 2
 # clusterer = KMeans(n_clusters=n_clusters, max_iter=3000, tol=1e-4)
 clusterer = KMedoids(n_clusters=n_clusters, max_iter=3000, tol=1e-4)
@@ -134,3 +135,5 @@ fig, ax = vert_pareto_plot(mean_sensitivity,
 # plt.title('Kmedoids - 2 clusters')
 plt.tight_layout()
 plt.show()
+
+# also cluster sensitivity, sensitivity matrix, etc. can be calculated in this way using the pyDGSA package
