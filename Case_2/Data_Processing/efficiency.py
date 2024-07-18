@@ -209,52 +209,6 @@ for d in directories:
 
         E_inj[s] = powint   # (in kWh)
       
-    ''' load data to calculate energy exchange aquifer with atmosphere '''
-
-    files3 = [p for p in os.listdir(d) if p.startswith(prefix3)]
-    for file3 in files3:
-        energy = xr.open_dataarray(os.path.join(d, file3))
-        total_C = []
-        total_W = []
-        for s in range(number_of_seasons):
-            zoomed_data_Cold = energy.sel(season=int('{}'.format(s)), x=slice(643, 661), y=slice(509, 491))
-            zoomed_data_Warm = energy.sel(season=int('{}'.format(s)), x=slice(351, 369), y=slice(509, 491))
-
-            # grid cells around wells have same size
-            total_C.append(np.sum(zoomed_data_Cold.values))
-            total_W.append(np.sum(zoomed_data_Warm.values))
-
-        if directories.index(d) == 0:
-            df_energy_W = pd.DataFrame(total_W, columns=[str(directories.index(d))], index=range(number_of_seasons))
-            df_energy_C = pd.DataFrame(total_C, columns=[str(directories.index(d))], index=range(number_of_seasons))
-        else:
-            next_col_W = pd.DataFrame(total_W, columns=[str(directories.index(d))], index=range(number_of_seasons))
-            next_col_C = pd.DataFrame(total_C, columns=[str(directories.index(d))], index=range(number_of_seasons))
-            df_energy_W = pd.concat([df_energy_W, next_col_W], axis=1)
-            df_energy_C = pd.concat([df_energy_C, next_col_C], axis=1)
-
-   # make dataframe and calculations of soil energy exchange and safe Injected and extracted energy per season
-
-    if directories.index(d) == 0:
-        #initiate empte df with 250 columns and 2 rows
-        column_names = [str(i) for i in range(len(directories))]
-        data = [[0.0] * 500, [0.0] * 500, [0.0] * 500, [0.0] * 500]  # Initializing with zeros and ones for example
-        share_exchange_WW = pd.DataFrame(data, columns=column_names, index=[0,1,2,3])
-        share_exchange_CW = pd.DataFrame(data, columns=column_names, index=[0,1,2,3])
-        E_inj_df = pd.DataFrame(data, columns=column_names, index = [0,1,2,3])
-        E_extr_df = pd.DataFrame(data, columns=column_names, index= [0,1,2,3])
-
-    E_inj_df[str(directories.index(d))] = E_inj
-    E_extr_df[str(directories.index(d))] = E_extr
-
-    for s in range(number_of_seasons):
-        if s % 2 == 0: #zomer
-            share_exchange_WW[str(directories.index(d))][s] = (df_energy_W[str(directories.index(d))][s] / E_inj[s]) * 100
-            share_exchange_CW[str(directories.index(d))][s] = (df_energy_C[str(directories.index(d))][s] / E_extr[s]) * 100
-        else:
-            share_exchange_WW[str(directories.index(d))][s] = (df_energy_W[str(directories.index(d))][s] / E_extr[s]) * 100
-            share_exchange_CW[str(directories.index(d))][s] = (df_energy_C[str(directories.index(d))][s] / E_inj[s]) * 100
-
 parameters = parameters.drop(columns=['Unnamed: 0'])
 
 ''' Calculate efficiency '''
