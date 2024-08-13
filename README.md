@@ -3,10 +3,10 @@
 
 ## 🔎 About
 
-The scripts can be used to generate and simulate random model realizations of Aquifer Thermal Energy Storage (ATES) systems in two different hydrogeological settings. A jobscript is also provided to run the simulations in parallel on the HPC to alleviate the computational demand.
+The scripts can be used to generate and simulate random model realizations of Aquifer Thermal Energy Storage (ATES) systems in two different hydrogeological settings. A jobscript is also provided to run the simulations in parallel (embarrasingly) on the HPC to alleviate the computational demand.
 
 - case 1 represents a thick productive aquifer, the traditional target for ATES
-  For each simulated model the following parameters change (Latin Hypercube sampling) change within the predefined ranges of uncertainty:
+  For each simulated model realization the following parameters are sampled (Latin Hypercube) from the predefined ranges of uncertainty:
   
   the hydraulic conductivity (vertical and horizontal),
   
@@ -15,7 +15,7 @@ The scripts can be used to generate and simulate random model realizations of Aq
   and the hydraulic gradient.
   
 - case 2 represents a shallow alluvial aquifer, a more complex target for ATES
-   For each simulated model the following parameters change (Latin Hypcercube sampling) change within the predefined ranges of uncertainty:
+   For each simulated model realization the following parameters are sampled (Latin Hypcercube) from the predefined ranges of uncertainty:
   
    the hydraulic conductivity (vertical and horizontal),
   
@@ -23,23 +23,24 @@ The scripts can be used to generate and simulate random model realizations of Aq
   
    the recharge,
   
-   the flow rate,
+   the flow rate (annual storage volumue),
   
-   the temperature of the top layer,
+   the temperature of the upper grid layer,
   
    the longitudinal dispersion,
   
    and the hydraulic gradient.
 
-Scripts to process the output data for the sensitivity analysis are also provided.
+Scripts to process the output data from the random model realizations are also provided. The focus is on conducting a Distance-based Global Sensitivity Analysis (DGSA).
 
 ## 📜 How to use?
 
-The output data of all simulations used for the paper “Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses”. can be consulted on Zenodo.
+To generate new model realizations (FlowTransport.py) the original modflow and mt3d input files from both case studies are required. These files are freely accessible on the Zenodo data repository. 
 
-Alternatively, the choice can be made to generate new output. Therefore, the input files of the original models can be used, also accessible on Zenodo.
 The file paths and uncertainty ranges for each parameter can be adjusted in the config.py file.
-The simulations can also run in parallel on a desktop by adjusting the n_sim and n_cpu parameters and simply running the RunParallel.py script.
+The simulations can also run in parallel on a desktop by adjusting the n_sim and n_cpu parameters in the RunParallel.py script and running this instead of the jobscript.
+
+Alternatively, when there is no intreest in running new simulations, the choice can be made to make use of the original output for further data analysis. This includes output data of all simulations used for the paper “Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses”. It can be consulted and downloaded on the Zenodo data repository.
 
 ### Software versions 
 
@@ -55,10 +56,18 @@ The publicly available MODFLOW 2005 and MT3D-USGS were used for the groundwater 
 
 ## 📌 How to cite?
 
+### The method:
+
+To be completed once published: Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (...). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses... 
+
+### The code:
+To be completed once published: Luka Tas (2024). ATES_SensitivityAnalyses (version?)
+Zenodo. ....
+
 ## 💭 Questions
 
 Don't hesitate to reach out in case of questions!
   link naar github profiel
 
 ## Acknowledgemets
-
+The resources and services used in this work were provided by the VSC (Flemish Supercomputer Center), funded by the Research Foundation - Flanders (FWO) and the Flemish Government.  
