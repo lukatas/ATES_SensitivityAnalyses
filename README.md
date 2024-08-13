@@ -10,26 +10,26 @@ The scripts can be used to generate and simulate random model realizations of Aq
   
    * the hydraulic conductivity (vertical and horizontal),
   
-  the porosity (effective and total),
+   * the porosity (effective and total),
   
-  and the hydraulic gradient.
+   * and the hydraulic gradient.
   
 - case 2 represents a shallow alluvial aquifer, a more complex target for ATES
    For each simulated model realization the following parameters are sampled (Latin Hypcercube) from the predefined ranges of uncertainty:
   
-   the hydraulic conductivity (vertical and horizontal),
+   * the hydraulic conductivity (vertical and horizontal),
   
-   the porosity (effective and total),
+   * the porosity (effective and total),
   
-   the recharge,
+   * the recharge,
   
-   the flow rate (annual storage volumue),
+   * the flow rate (annual storage volumue),
   
-   the temperature of the upper grid layer,
+   * the temperature of the upper grid layer,
   
-   the longitudinal dispersion,
+   * the longitudinal dispersion,
   
-   and the hydraulic gradient.
+   * and the hydraulic gradient.
 
 Scripts to process the output data from the random model realizations are also provided. The focus is on conducting a Distance-based Global Sensitivity Analysis (DGSA).
 
