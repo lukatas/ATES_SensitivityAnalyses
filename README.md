@@ -67,7 +67,7 @@ Zenodo. ....
 ## 💭 Questions
 
 Don't hesitate to reach out in case of questions!
-luka.tas@ugent.be
+
 
 ## Acknowledgemets
 The resources and services used in this work were provided by the VSC (Flemish Supercomputer Center), funded by the Research Foundation - Flanders (FWO) and the Flemish Government.  
