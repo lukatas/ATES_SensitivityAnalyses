@@ -8,7 +8,7 @@ The scripts can be used to generate and simulate random model realizations of Aq
 - case 1 represents a thick productive aquifer, the traditional target for ATES
   For each simulated model realization the following parameters are sampled (Latin Hypercube) from the predefined ranges of uncertainty:
   
-  the hydraulic conductivity (vertical and horizontal),
+   * the hydraulic conductivity (vertical and horizontal),
   
   the porosity (effective and total),
   
@@ -67,7 +67,7 @@ Zenodo. ....
 ## 💭 Questions
 
 Don't hesitate to reach out in case of questions!
-  link naar github profiel
+luka.tas@ugent.be
 
 ## Acknowledgemets
 The resources and services used in this work were provided by the VSC (Flemish Supercomputer Center), funded by the Research Foundation - Flanders (FWO) and the Flemish Government.  
