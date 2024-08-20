@@ -6,7 +6,7 @@
 
 The scripts can be used to generate and simulate random model realizations of Aquifer Thermal Energy Storage (ATES) systems in two different hydrogeological settings. A jobscript is also provided to run the simulations in parallel (embarrasingly) on the HPC to alleviate the computational demand.
 
-- case 1 represents a thick productive aquifer, the traditional target for ATES
+- case 1 represents a thick productive aquifer, the traditional target for ATES.
   For each simulated model realization the following parameters are sampled (Latin Hypercube) from the predefined ranges of uncertainty:
   
    * the hydraulic conductivity (vertical and horizontal),
@@ -15,7 +15,7 @@ The scripts can be used to generate and simulate random model realizations of Aq
   
    * and the hydraulic gradient.
   
-- case 2 represents a shallow alluvial aquifer, a more complex target for ATES
+- case 2 represents a shallow alluvial aquifer, a more complex target for ATES.
    For each simulated model realization the following parameters are sampled (Latin Hypcercube) from the predefined ranges of uncertainty:
   
    * the hydraulic conductivity (vertical and horizontal),
@@ -36,12 +36,12 @@ Scripts to process the output data from the random model realizations are also p
 
 ## 📜 How to use?
 
-To generate new model realizations (FlowTransport.py) the original modflow and mt3d input files from both case studies are required. These files are freely accessible on the Zenodo data repository. 
+To generate new model realizations (FlowTransport.py) the original modflow and mt3d input files from both case studies are required. These files are freely accessible on the Zenodo data repository. https://doi.org/10.5281/zenodo.13347760
 
 The file paths and uncertainty ranges for each parameter can be adjusted in the config.py file.
 The simulations can also run in parallel on a desktop by adjusting the n_sim and n_cpu parameters in the RunParallel.py script and running this instead of the jobscript.
 
-Alternatively, when there is no intreest in running new simulations, the choice can be made to make use of the original output for further data analysis. This includes output data of all simulations used for the paper “Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses”. It can be consulted and downloaded on the Zenodo data repository.
+Alternatively, when there is no intreest in running new simulations, the choice can be made to make use of the original output for further data analysis. This includes output data of all simulations used for the paper “Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses”. It can be consulted and downloaded from the Zenodo data repository. https://doi.org/10.5281/zenodo.13347760
 
 ### Software versions 
 
@@ -59,10 +59,10 @@ The publicly available MODFLOW 2005 and MT3D-USGS were used for the groundwater 
 
 ### The method:
 
-To be completed once published: Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (...). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses... 
+To be completed once published: Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (...). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses. Geothermics...
 
 ### The code:
-Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (2024). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Dataset [Dataset]. In Geothermics (Version 0.1). Zenodo. https://doi.org/10.5281/zenodo.13347760
+Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (2024). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Dataset [Dataset]. In Geothermics (Version 0.1.0). Zenodo. https://doi.org/10.5281/zenodo.13347760
 
 ## 💭 Questions
 
