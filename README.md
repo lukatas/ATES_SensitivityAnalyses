@@ -1,7 +1,7 @@
 ![Capture6](https://github.com/user-attachments/assets/8953c781-4283-4260-96a5-b4cfb3c10ce3)
 
 [![DOI](https://zenodo.org/badge/830023014.svg)](https://zenodo.org/doi/10.5281/zenodo.13349120)
-
+https://doi.org/10.5281/zenodo.13347760
 
 ## 🔎 About
 
@@ -63,12 +63,15 @@ The publicly available MODFLOW 2005 and MT3D-USGS were used for the groundwater 
 To be completed once published: Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (...). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses. Geothermics...
 
 ### The code:
-Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (2024). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Dataset [Dataset]. In Geothermics (Version 0.1.0). Zenodo. https://doi.org/10.5281/zenodo.13347760
+Tas, L. (2024). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Code ATES_SensitivityAnalyses: version 0.1.0 [Software]. Zenodo. [![DOI](https://zenodo.org/badge/830023014.svg)](https://zenodo.org/doi/10.5281/zenodo.13349120)
+
+### The dataset:
+Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (2024). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Dataset [Dataset]. Zenodo. https://doi.org/10.5281/zenodo.13347760
 
 ## 💭 Questions
 
 Don't hesitate to reach out in case of questions!
-
+[Luka Tas](https://github.com/lukatas).
 
 ## Acknowledgemets
 The resources and services used in this work were provided by the VSC (Flemish Supercomputer Center), funded by the Research Foundation - Flanders (FWO) and the Flemish Government.  
