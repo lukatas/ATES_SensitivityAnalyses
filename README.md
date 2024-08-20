@@ -1,5 +1,6 @@
 ![Capture6](https://github.com/user-attachments/assets/8953c781-4283-4260-96a5-b4cfb3c10ce3)
 
+[![DOI](https://zenodo.org/badge/830023014.svg)](https://zenodo.org/doi/10.5281/zenodo.13349120)
 
 
 ## 🔎 About
