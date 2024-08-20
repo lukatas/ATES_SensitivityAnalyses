@@ -1,6 +1,7 @@
 ![Capture6](https://github.com/user-attachments/assets/8953c781-4283-4260-96a5-b4cfb3c10ce3)
 
 
+
 ## 🔎 About
 
 The scripts can be used to generate and simulate random model realizations of Aquifer Thermal Energy Storage (ATES) systems in two different hydrogeological settings. A jobscript is also provided to run the simulations in parallel (embarrasingly) on the HPC to alleviate the computational demand.
@@ -61,7 +62,7 @@ The publicly available MODFLOW 2005 and MT3D-USGS were used for the groundwater 
 To be completed once published: Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (...). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses... 
 
 ### The code:
-Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (2024). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Dataset [Dataset]. In Geothermics (Version 0.1). Zenodo. 10.5281/zenodo.13347760
+Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (2024). Effciency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Dataset [Dataset]. In Geothermics (Version 0.1). Zenodo. https://doi.org/10.5281/zenodo.13347760
 
 ## 💭 Questions
 
