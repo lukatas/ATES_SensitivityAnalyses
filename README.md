@@ -1,7 +1,7 @@
 ![Capture6](https://github.com/user-attachments/assets/8953c781-4283-4260-96a5-b4cfb3c10ce3)
 
 [![DOI](https://zenodo.org/badge/830023014.svg)](https://zenodo.org/doi/10.5281/zenodo.13349120)
-https://doi.org/10.5281/zenodo.13347760
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13347760.svg)](https://doi.org/10.5281/zenodo.13347760)
 
 ## 🔎 About
 
@@ -37,12 +37,12 @@ Scripts to process the output data from the random model realizations are also p
 
 ## 📜 How to use?
 
-To generate new model realizations ([Case1](Case_1/Parallel_Simulations), [Case2](Case_2/Parallel_Simulations)) the original modflow and mt3d input files from both case studies are required. These files are freely accessible on the Zenodo data repository. https://doi.org/10.5281/zenodo.13347760
+To generate new model realizations ([Case1](Case_1/Parallel_Simulations), [Case2](Case_2/Parallel_Simulations)) the original modflow and mt3d input files from both case studies are required. These files are freely accessible on the Zenodo data repository. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13347760.svg)](https://doi.org/10.5281/zenodo.13347760)
 
 The file paths and uncertainty ranges for each parameter can be adjusted in the config.py file.
 The simulations can also run in parallel on a desktop by adjusting the n_sim and n_cpu parameters in the RunParallel.py script and running this instead of the jobscript.
 
-Alternatively, when there is no intreest in running new simulations, the choice can be made to make use of the original output for further data analysis ([Case1](Case_1/Data_Processing), [Case2](Case_2/Data_Processing)). This includes output data of all simulations used for the paper “Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses”. It can be consulted and downloaded from the Zenodo data repository. https://doi.org/10.5281/zenodo.13347760
+Alternatively, when there is no intreest in running new simulations, the choice can be made to make use of the original output for further data analysis ([Case1](Case_1/Data_Processing), [Case2](Case_2/Data_Processing)). This includes output data of all simulations used for the paper “Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses”. It can be consulted and downloaded from the Zenodo data repository. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13347760.svg)](https://doi.org/10.5281/zenodo.13347760)
 
 ### Software versions 
 
@@ -66,7 +66,7 @@ To be completed once published: Tas, L., Hartog, N., Bloemendal, M., Simpson, D.
 Tas, L. (2024). Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Code ATES_SensitivityAnalyses: version 0.1.0 [Software]. Zenodo. [![DOI](https://zenodo.org/badge/830023014.svg)](https://zenodo.org/doi/10.5281/zenodo.13349120)
 
 ### The dataset:
-Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (2024). Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Dataset [Dataset]. Zenodo. https://doi.org/10.5281/zenodo.13347760
+Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang, L., Hermans, T. (2024). Efficiency and heat transport processes of LT-ATES systems: insights from distance-based global sensitivity analyses - Supporting Dataset [Dataset]. Zenodo. [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13347760.svg)](https://doi.org/10.5281/zenodo.13347760)
 
 ## 💭 Questions
 
