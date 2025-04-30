@@ -1,17 +1,20 @@
 import uuid
-from os.path import join as jp
-from loguru import logger
 import time
 import os
 import shutil
-
-from config import Directories
-from Rijkevorsel_FlowTransport import FlowTransport
-from utils import dirmaker, keep_essential
+from os.path import join as jp
+from loguru import logger
+from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.config import Directories
+from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.Rijkevorsel_FlowTransport import (
+    FlowTransport,
+)
+from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.utils import (
+    dirmaker,
+    keep_essential,
+)
 
 
 def forward_modelling(**kwargs):
-
     """Data collection"""
     # Extract the required keyword arguments
     sample_point = kwargs.get("sample_point")
@@ -36,12 +39,12 @@ def forward_modelling(**kwargs):
             results_dir=results_dir,
             Kh_aqf1=sample_point[0],
             Kh_aqf2=sample_point[1],
-            Kv_aqf1=sample_point[0]/sample_point[2],
-            Kv_aqf2=sample_point[1]/sample_point[2],
+            Kv_aqf1=sample_point[0] / sample_point[2],
+            Kv_aqf2=sample_point[1] / sample_point[2],
             gradient=sample_point[3],
             por_Taqf=sample_point[4],
             por_Eaqf=sample_point[4] * sample_point[5],
-            longitudinal = sample_point[6],
+            longitudinal=sample_point[6],
         )
 
     # Deletes everything except final results

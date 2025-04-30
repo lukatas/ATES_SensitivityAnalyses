@@ -1,19 +1,22 @@
 import uuid
-from os.path import join as jp
-from loguru import logger
 import time
 import os
 import shutil
-
-from config import Directories
-from Campus_FlowTransport import FlowTransport
-from utils import dirmaker, keep_essential
+from os.path import join as jp
+from loguru import logger
+from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.config import Directories
+from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.Campus_FlowTransport import (
+    FlowTransport,
+)
+from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.utils import (
+    dirmaker,
+    keep_essential,
+)
 
 
 def forward_modelling(**kwargs):
     """Data collection"""
     # Extract the required keyword arguments
-    n_sim = kwargs.get("n_sim")
     sample_point = kwargs.get("sample_point")
 
     # Main results directory.
@@ -43,11 +46,11 @@ def forward_modelling(**kwargs):
             por_Taqt=sample_point[5],
             por_Eaqf=sample_point[4] * sample_point[6],
             por_Eaqt=sample_point[5] * sample_point[7],
-            longitudinal = sample_point[8],
-            aqf_dz = sample_point[9],
-            deltaT_inj = sample_point[10],
-            flowrate = sample_point[11]
-            )
+            longitudinal=sample_point[8],
+            aqf_dz=sample_point[9],
+            deltaT_inj=sample_point[10],
+            flowrate=sample_point[11],
+        )
 
     # Deletes everything except final results
     hl = (time.time() - start_fwd) // 60

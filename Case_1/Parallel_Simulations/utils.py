@@ -27,28 +27,28 @@ def dirmaker(dird: str, erase: bool = False):
 
 def keep_essential(results_dir: str):
     """
-   Deletes everything in a simulation folder except specific files.
-   :param res_dir: Path to the folder containing results.
-   """
+    Deletes everything in a simulation folder except specific files.
+    :param res_dir: Path to the folder containing results.
+    """
     for the_file in os.listdir(results_dir):
         if (
-                not the_file.endswith(".ucn")  # files we want to keep
-                and not the_file.endswith(".csv")
-                and not the_file.endswith(".mto")
-
+            not the_file.endswith(".ucn")  # files we want to keep
+            and not the_file.endswith(".csv")
+            and not the_file.endswith(".mto")
         ):
-
             file_path = os.path.join(results_dir, the_file)
             try:
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
                 elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)  # difference: does not care if directory is empty or not
+                    shutil.rmtree(
+                        file_path
+                    )  # difference: does not care if directory is empty or not
             except Exception as e:
                 logger.warning(e)
 
-def NewGridValues(nrow:int, ncol:int, new_value:float):
+
+def NewGridValues(nrow: int, ncol: int, new_value: float):
     new = np.ones((nrow, ncol)) * new_value
 
     return new
-

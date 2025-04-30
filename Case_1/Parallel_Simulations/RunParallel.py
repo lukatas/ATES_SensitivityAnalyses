@@ -1,12 +1,14 @@
 #! /usr/bin/env python3
 
-from loguru import logger
 import time
 import multiprocessing as mp
-from scipy.stats import qmc
 import queue
-from Simulation import forward_modelling
-from config import ModelParameters
+from scipy.stats import qmc
+from loguru import logger
+from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.Simulation import (
+    forward_modelling,
+)
+from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.config import ModelParameters
 
 
 def worker_process(process_id, sample_queue, n_sim, kwargs):
@@ -14,7 +16,9 @@ def worker_process(process_id, sample_queue, n_sim, kwargs):
         try:
             # method get() reads and removes a python object from a queue instance
             # (once removed it is not available in the queue anymore)
-            sample_point = sample_queue.get(timeout=1)  # Timeout to avoid blocking indefinitely
+            sample_point = sample_queue.get(
+                timeout=1
+            )  # Timeout to avoid blocking indefinitely
         except queue.Empty:
             break
 
@@ -25,8 +29,9 @@ def worker_process(process_id, sample_queue, n_sim, kwargs):
         # Call forward_modelling with keyword arguments
         forward_modelling(**kwargs)
 
+
 if __name__ == "__main__":
-    mp.set_start_method('spawn')
+    mp.set_start_method("spawn")
     start = time.time()
 
     n_cpu = 2  # Number of processes available
@@ -41,8 +46,24 @@ if __name__ == "__main__":
     }
 
     # Scale the sample to the appropriate bounds & Generate the sample points in the hypercube space
-    l_bounds = [ModelParameters.Kh_aqf1_min, ModelParameters.Kh_aqf2_min, ModelParameters.Kv_from_Kh_min, ModelParameters.gradient_min, ModelParameters.por_Taqf_min, ModelParameters.effective_aqf_min, ModelParameters.longitudinal_min]
-    u_bounds = [ModelParameters.Kh_aqf1_max, ModelParameters.Kh_aqf2_max, ModelParameters.Kv_from_Kh_max, ModelParameters.gradient_max, ModelParameters.por_Taqf_max, ModelParameters.effective_aqf_max, ModelParameters.longitudinal_max]
+    l_bounds = [
+        ModelParameters.Kh_aqf1_min,
+        ModelParameters.Kh_aqf2_min,
+        ModelParameters.Kv_from_Kh_min,
+        ModelParameters.gradient_min,
+        ModelParameters.por_Taqf_min,
+        ModelParameters.effective_aqf_min,
+        ModelParameters.longitudinal_min,
+    ]
+    u_bounds = [
+        ModelParameters.Kh_aqf1_max,
+        ModelParameters.Kh_aqf2_max,
+        ModelParameters.Kv_from_Kh_max,
+        ModelParameters.gradient_max,
+        ModelParameters.por_Taqf_max,
+        ModelParameters.effective_aqf_max,
+        ModelParameters.longitudinal_max,
+    ]
 
     sampler = qmc.LatinHypercube(d=len(l_bounds))
     sample = sampler.random(n=n_sim)
@@ -57,7 +78,9 @@ if __name__ == "__main__":
     # Create and start parallel processes
     processes = []
     for i in range(n_cpu):
-        process = mp.Process(target=worker_process, args=(i, sample_queue, n_sim, kwargs))
+        process = mp.Process(
+            target=worker_process, args=(i, sample_queue, n_sim, kwargs)
+        )
         processes.append(process)
         process.start()
 
@@ -70,7 +93,7 @@ if __name__ == "__main__":
 
     # print points that were not processed by the worker processes (the ones that were not even started!)
     if not sample_queue.empty():
-      logger.info('Remaining unprocessed points:')
-      while not sample_queue.empty():
-        remaining_point = sample_queue.get()
-        logger.info(remaining_point)
+        logger.info("Remaining unprocessed points:")
+        while not sample_queue.empty():
+            remaining_point = sample_queue.get()
+            logger.info(remaining_point)

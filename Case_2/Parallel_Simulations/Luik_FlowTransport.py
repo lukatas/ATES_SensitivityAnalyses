@@ -5,73 +5,87 @@ Created on Tue May 16 09:08:19 2023
 
 script for running imported modelmuse models (MF5) prepared for parallel running
 """
+
 import os
 import pandas as pd
 import numpy as np
 import flopy
 import flopy.modflow as fpm
 import flopy.mt3d as fpt
+from ATES_SensitivityAnalyses.Case_2.Parallel_Simulations.utils import (
+    Q_sine,
+    T_sine,
+    NewGridValues,
+)
+from ATES_SensitivityAnalyses.Case_2.Parallel_Simulations.T_topAqf import T_TopAqf
 
-from utils import NewGridValues
-from utils import Q_sine,T_sine
-from T_topAqf import T_TopAqf
 
-def FlowTransport(exe_mf: str,
-                  exe_mt: str,
-                  sim_ws: str,
-                  Kh_aqf1: float,
-                  Kh_aqf2: float,
-                  Kv_aqf1: float,
-                  Kv_aqf2: float,
-                  gradient: float,
-                  por_Taqf: float,
-                  por_Eaqf: float,
-                  volume: float,
-                  longitudinal: float,
-                  Twinter: float,
-                  Tzomer: float,
-                  Rch: float,
-                  results_dir: str,
-                  ):
+def FlowTransport(
+    exe_mf: str,
+    exe_mt: str,
+    sim_ws: str,
+    Kh_aqf1: float,
+    Kh_aqf2: float,
+    Kv_aqf1: float,
+    Kv_aqf2: float,
+    gradient: float,
+    por_Taqf: float,
+    por_Eaqf: float,
+    volume: float,
+    longitudinal: float,
+    Twinter: float,
+    Tzomer: float,
+    Rch: float,
+    results_dir: str,
+):
+    """load flow and transport model"""
+    f = os.path.join(sim_ws, "Luik_2Y.nam")
+    mf = flopy.modflow.Modflow.load(
+        f, version="mf2005", exe_name=exe_mf, model_ws=sim_ws
+    )
 
-    ''' load flow and transport model '''
-    f = os.path.join(sim_ws, 'Luik_2Y.nam')
-    mf = flopy.modflow.Modflow.load(f, version='mf2005', exe_name=exe_mf, model_ws=sim_ws)
-
-    f = 'Luik_2Y.mt_nam'
+    f = "Luik_2Y.mt_nam"
     # problem with loading rch package so do not include it
-    mt = fpt.Mt3dms.load(f, model_ws=sim_ws, version='mt3d-usgs', exe_name=exe_mt, modflowmodel=mf,load_only=['btn','adv','dsp','rct','gcg'],verbose=True)
+    mt = fpt.Mt3dms.load(
+        f,
+        model_ws=sim_ws,
+        version="mt3d-usgs",
+        exe_name=exe_mt,
+        modflowmodel=mf,
+        load_only=["btn", "adv", "dsp", "rct", "gcg"],
+        verbose=True,
+    )
     # ! need to remove first line of .dsp file
 
-    ''' create Xarrays '''
+    """ create Xarrays """
     XGR = mf.dis.delr.array
     YGR = mf.dis.delc.array
     layers = mf.dis.nlay
 
-    ''' change directories for simulations '''
+    """ change directories for simulations """
     mf.change_model_ws(results_dir)
     mt.change_model_ws(results_dir)
 
-    ''' save variable parameters '''
-    parameters = ({'Kh_aqf1': [Kh_aqf1],
-                   'Kh_aqf2': [Kh_aqf2],
-                   'Kv_aqf1': [Kv_aqf1],
-                   'Kv_aqf2': [Kv_aqf2],
-                   'gradient': [gradient],
-                   'por_Taqf': [por_Taqf],
-                   'por_Eaqf': [por_Eaqf],
-                   'volume': [volume],
-                   'longitudinal': [longitudinal],
-                   'Twinter': [Twinter],
-                   'Tzomer': [Tzomer],
-                   'Recharge': [Rch]
-                   })
+    """ save variable parameters """
+    parameters = {
+        "Kh_aqf1": [Kh_aqf1],
+        "Kh_aqf2": [Kh_aqf2],
+        "Kv_aqf1": [Kv_aqf1],
+        "Kv_aqf2": [Kv_aqf2],
+        "gradient": [gradient],
+        "por_Taqf": [por_Taqf],
+        "por_Eaqf": [por_Eaqf],
+        "volume": [volume],
+        "longitudinal": [longitudinal],
+        "Twinter": [Twinter],
+        "Tzomer": [Tzomer],
+        "Recharge": [Rch],
+    }
     parameters = pd.DataFrame(data=parameters)
     run_name = os.path.basename(results_dir)
-    parameters.to_csv(os.path.join(results_dir, 'Parameters_{}.csv'.format(run_name)))
+    parameters.to_csv(os.path.join(results_dir, "Parameters_{}.csv".format(run_name)))
 
-
-# Dis
+    # Dis
     # need to set unitnumber to 12 if problem
     botm = mf.dis.botm.array
     nlay = layers
@@ -118,13 +132,13 @@ def FlowTransport(exe_mf: str,
         rotation=rotation,
     )
 
-# Lpf
+    # Lpf
     laytyp = mf.lpf.laytyp
     layavg = mf.lpf.layavg
     chani = mf.lpf.chani
     layvka = mf.lpf.layvka
     laywet = mf.lpf.laywet
-    ipakcb = mf.lpf.ipakcb #flag used to determine of cbc budget data should be saved (non zero: budget will be saved)
+    ipakcb = mf.lpf.ipakcb  # flag used to determine of cbc budget data should be saved (non zero: budget will be saved)
     hdry = mf.lpf.hdry
     iwdflg = 0
     wetfct = mf.lpf.wetfct
@@ -192,9 +206,10 @@ def FlowTransport(exe_mf: str,
         hk=hk_new,
         extension=extension,
         unitnumber=unitnumber,
-        filenames=filenames)
+        filenames=filenames,
+    )
 
-# Chd
+    # Chd
     # set new gradient based on original values
     NB = 63
     SB = 62
@@ -233,9 +248,10 @@ def FlowTransport(exe_mf: str,
         dtype=None,
         extension="chd",
         unitnumer=unitnumber,
-        filenames=None)
+        filenames=None,
+    )
 
-#Wel
+    # Wel
     # write BC
     ipakcb = mf.wel.ipakcb
     well_data = {}
@@ -246,7 +262,9 @@ def FlowTransport(exe_mf: str,
     for stp in range(nper):
         well_data[stp] = []
         for k in range(nlay):
-            for i in range(ncol):  # not first and last row, we already have CHD BC there
+            for i in range(
+                ncol
+            ):  # not first and last row, we already have CHD BC there
                 if i in EWB:
                     for j in range(nrow - 1):
                         if i == EWB[0] and j > 0:
@@ -276,33 +294,35 @@ def FlowTransport(exe_mf: str,
                     points.append(wells[0][x][crds])
             cwell.append(points)
 
-    #flowrate changes every stress period
-    Dis_aqf = 1 #thickness of layers in aqf
+    # flowrate changes every stress period
+    Dis_aqf = 1  # thickness of layers in aqf
 
-    #thickness of each aquifer
-    L1 = top_aqf-botm_aqf1
-    L2 = botm_aqf1-botm_aqf
+    # thickness of each aquifer
+    L1 = top_aqf - botm_aqf1
+    L2 = botm_aqf1 - botm_aqf
 
-    #transmissivity of aqf
+    # transmissivity of aqf
     T1 = L1 * Kh_aqf1
     T2 = L2 * Kh_aqf2
-    Ttot = T1+T2
+    Ttot = T1 + T2
 
-    F1 = T1/Ttot
-    F2 = T2/Ttot
+    F1 = T1 / Ttot
+    F2 = T2 / Ttot
 
     # this is the total flowrate for a wel per stress period, still need to divide if well is divided over several cells
-    Q = Q_sine(vol=volume,
-           time_dis_sine=perlen[0]/24/3600,
-           sim_time_years=(len(perlen)*perlen[0])/24/3600/360,
-           year_days=360)
+    Q = Q_sine(
+        vol=volume,
+        time_dis_sine=perlen[0] / 24 / 3600,
+        sim_time_years=(len(perlen) * perlen[0]) / 24 / 3600 / 360,
+        year_days=360,
+    )
 
-    Q_wwel_aqf1 = [(i * F1)/(L1/Dis_aqf) for i in Q]
-    Q_wwel_aqf2 = [(i * F2)/(L2/Dis_aqf) for i in Q]
+    Q_wwel_aqf1 = [(i * F1) / (L1 / Dis_aqf) for i in Q]
+    Q_wwel_aqf2 = [(i * F2) / (L2 / Dis_aqf) for i in Q]
 
     wwell_rate_perlay = {}
     for stp in range(nper):
-        wwell_rate_perlay[stp]=[]
+        wwell_rate_perlay[stp] = []
         for lay in aqf_layers:
             if botm[lay][0][0] >= botm_aqf1:
                 wwell_rate_perlay[stp].append(Q_wwel_aqf1[stp])
@@ -310,28 +330,60 @@ def FlowTransport(exe_mf: str,
                 wwell_rate_perlay[stp].append(Q_wwel_aqf2[stp])
 
     for stp in range(nper):
-        if wwell_rate_perlay[stp][0]>0:  # when rate wwell is postive, injection in wwel, extraction in cold well
+        if (
+            wwell_rate_perlay[stp][0] > 0
+        ):  # when rate wwell is postive, injection in wwel, extraction in cold well
             for well in range(len(wwell)):
-                well_data[stp].append((wwell[well][0], wwell[well][1], wwell[well][2], wwell_rate_perlay[stp][well]))
+                well_data[stp].append(
+                    (
+                        wwell[well][0],
+                        wwell[well][1],
+                        wwell[well][2],
+                        wwell_rate_perlay[stp][well],
+                    )
+                )
             for well in range(len(cwell)):
-                well_data[stp].append((cwell[well][0], cwell[well][1], cwell[well][2], wwell_rate_perlay[stp][well]*-1))
+                well_data[stp].append(
+                    (
+                        cwell[well][0],
+                        cwell[well][1],
+                        cwell[well][2],
+                        wwell_rate_perlay[stp][well] * -1,
+                    )
+                )
         else:
             for well in range(len(wwell)):
-                well_data[stp].append((wwell[well][0], wwell[well][1], wwell[well][2], wwell_rate_perlay[stp][well]))
+                well_data[stp].append(
+                    (
+                        wwell[well][0],
+                        wwell[well][1],
+                        wwell[well][2],
+                        wwell_rate_perlay[stp][well],
+                    )
+                )
             for well in range(len(cwell)):
-                well_data[stp].append((cwell[well][0], cwell[well][1], cwell[well][2], wwell_rate_perlay[stp][well]*-1))
+                well_data[stp].append(
+                    (
+                        cwell[well][0],
+                        cwell[well][1],
+                        cwell[well][2],
+                        wwell_rate_perlay[stp][well] * -1,
+                    )
+                )
 
-    fpm.ModflowWel(mf,
-                   ipakcb=ipakcb,
-                   stress_period_data=well_data,
-                   dtype=None,
-                   extension='wel',
-                   unitnumber=None,
-                   filenames=None)
-# Rch
+    fpm.ModflowWel(
+        mf,
+        ipakcb=ipakcb,
+        stress_period_data=well_data,
+        dtype=None,
+        extension="wel",
+        unitnumber=None,
+        filenames=None,
+    )
+    # Rch
     nrchop = mf.rch.nrchop
     ipakcb = mf.rch.ipakcb
-    rech = Rch #mf.rch.rech.array[0][0][0][0]
+    rech = Rch  # mf.rch.rech.array[0][0][0][0]
     irch = mf.rch.irch
 
     fpm.ModflowRch(
@@ -340,47 +392,47 @@ def FlowTransport(exe_mf: str,
         ipakcb=ipakcb,
         rech=rech,
         irch=irch,
-        extension='rch',
+        extension="rch",
         unitnumber=unitnumber,
-        filenames=None)
+        filenames=None,
+    )
 
-# Hob,Bas6 package are written correctly
-    #define starting head in every layer according to gradient.. otherwise not
-    #correct for layers with very low hydraulic conductivity where flow
-    #is too slow to establish gradient (don't have steady state period)
+    # Hob,Bas6 package are written correctly
+    # define starting head in every layer according to gradient.. otherwise not
+    # correct for layers with very low hydraulic conductivity where flow
+    # is too slow to establish gradient (don't have steady state period)
 
     distance = YGR.cumsum()
-    strt = np.ones((nlay,nrow,ncol))
+    strt = np.ones((nlay, nrow, ncol))
     for lay in range(nlay):
-
         for row in range(len(distance)):
-            row_value = NB - ((grad_new/100) * distance[row])
+            row_value = NB - ((grad_new / 100) * distance[row])
             strt[lay][row] = strt[lay][row] * row_value
-
 
     # Bas6
     ibound = mf.bas6.ibound.array
     ichflg = mf.bas6.ichflg
     stoper = mf.bas6.stoper
     hnoflo = mf.bas6.hnoflo
-    fpm.ModflowBas(mf,
-                    ibound=ibound,
-                    strt=strt,
-                    ichflg=ichflg,
-                    stoper=stoper,
-                    hnoflo=hnoflo,
-                    extension='bas',
-                    unitnumber=unitnumber,
-                    filenames=filenames
-                    )
+    fpm.ModflowBas(
+        mf,
+        ibound=ibound,
+        strt=strt,
+        ichflg=ichflg,
+        stoper=stoper,
+        hnoflo=hnoflo,
+        extension="bas",
+        unitnumber=unitnumber,
+        filenames=filenames,
+    )
 
     # write and run flow model
     mf.write_input()
     mf.run_model(silent=False, report=True)
 
-# Btn
-#     #want to be able to multiply output of cbc file by values of ucn file at these times
-#     #therefore need to save results at these times as well (so every half day (as we want for mto file) and everytime we have output for cbc)
+    # Btn
+    #     #want to be able to multiply output of cbc file by values of ucn file at these times
+    #     #therefore need to save results at these times as well (so every half day (as we want for mto file) and everytime we have output for cbc)
 
     MFStyleArr = False
     DRYCell = False
@@ -416,7 +468,9 @@ def FlowTransport(exe_mf: str,
     ssflag = None
     dt0 = mt.btn.dt0.array[0]
     mxstrn = mt.btn.mxstrn.array[0]
-    ttsmult = tsmult[0]  # The multiplier for successive transport steps within a flow time-step
+    ttsmult = tsmult[
+        0
+    ]  # The multiplier for successive transport steps within a flow time-step
     ttsmax = mt.btn.ttsmax.array[0]
     extension = "btn"
     unitnumber = None
@@ -424,7 +478,7 @@ def FlowTransport(exe_mf: str,
 
     prsity_new = prsity
     for lay in aqf_layers:
-        prsity_new[lay]=NewGridValues(nrow, ncol, por_Eaqf)
+        prsity_new[lay] = NewGridValues(nrow, ncol, por_Eaqf)
 
     # write new Btn package
     flopy.mt3d.mtbtn.Mt3dBtn(
@@ -479,54 +533,78 @@ def FlowTransport(exe_mf: str,
     filenames = None
 
     ssm_data = {}
-    itype = {'BAS6': 1, 'CC': -1, 'CHD': 1, 'DRN': 3, 'GHB': 5, 'MAS': 15, 'PBC': 1, 'RIV': 4, 'WEL': 2}
+    itype = {
+        "BAS6": 1,
+        "CC": -1,
+        "CHD": 1,
+        "DRN": 3,
+        "GHB": 5,
+        "MAS": 15,
+        "PBC": 1,
+        "RIV": 4,
+        "WEL": 2,
+    }
 
-    T_sin = T_sine(Twinter=Twinter,
-                   Tzomer=Tzomer,
-                   time_dis_sine=perlen[0]/24/3600,
-                   sim_time_years=(len(perlen)*perlen[0])/24/3600/360,
-                   year_days=360)
+    T_sin = T_sine(
+        Twinter=Twinter,
+        Tzomer=Tzomer,
+        time_dis_sine=perlen[0] / 24 / 3600,
+        sim_time_years=(len(perlen) * perlen[0]) / 24 / 3600 / 360,
+        year_days=360,
+    )
 
     # ssm for boundaries
     temp_initial = 10
     for stp in range(nper):
         ssm_data[stp] = []
         for k in range(nlay):
-            #impose T top boundary
+            # impose T top boundary
             if k == 0:
                 for i in range(nrow):
                     for j in range(ncol):
-                        ssm_data[stp].append((k, i, j, T_sin[stp], itype['CC']))    #all rows and colums of top layer get T_sin
+                        ssm_data[stp].append(
+                            (k, i, j, T_sin[stp], itype["CC"])
+                        )  # all rows and colums of top layer get T_sin
 
             for i in range(nrow):
                 if i in NSB:
                     for j in range(ncol):
-                        ssm_data[stp].append((k, i, j, temp_initial, itype['CC']))
-                        ssm_data[stp].append((k, i, j, temp_initial, itype['CHD']))
+                        ssm_data[stp].append((k, i, j, temp_initial, itype["CC"]))
+                        ssm_data[stp].append((k, i, j, temp_initial, itype["CHD"]))
                 else:  # dit zijn dan oost en west boundaries
-                    ssm_data[stp].append((k, i, 0, temp_initial, itype['CC']))
-                    ssm_data[stp].append((k, i, 0, temp_initial, itype['WEL']))
-                    ssm_data[stp].append((k, i, ncol - 1, temp_initial, itype['CC']))
-                    ssm_data[stp].append((k, i, ncol - 1, temp_initial, itype['WEL']))
+                    ssm_data[stp].append((k, i, 0, temp_initial, itype["CC"]))
+                    ssm_data[stp].append((k, i, 0, temp_initial, itype["WEL"]))
+                    ssm_data[stp].append((k, i, ncol - 1, temp_initial, itype["CC"]))
+                    ssm_data[stp].append((k, i, ncol - 1, temp_initial, itype["WEL"]))
 
     # ssm for wells
     warm = 15
     cold = 5
     for stp in range(nper):
-        if wwell_rate_perlay[stp][0]>0:  # wwell injection: warm T for these stp, wwell extr: cold T
+        if (
+            wwell_rate_perlay[stp][0] > 0
+        ):  # wwell injection: warm T for these stp, wwell extr: cold T
             for well in range(len(wwell)):
-                ssm_data[stp].append((wwell[well][0], wwell[well][1], wwell[well][2], warm, itype['CC']))
-                ssm_data[stp].append((wwell[well][0], wwell[well][1], wwell[well][2], warm, itype['WEL']))
+                ssm_data[stp].append(
+                    (wwell[well][0], wwell[well][1], wwell[well][2], warm, itype["CC"])
+                )
+                ssm_data[stp].append(
+                    (wwell[well][0], wwell[well][1], wwell[well][2], warm, itype["WEL"])
+                )
         else:
             for well in range(len(cwell)):
-                ssm_data[stp].append((cwell[well][0], cwell[well][1], cwell[well][2], cold, itype['CC']))
-                ssm_data[stp].append((cwell[well][0], cwell[well][1], cwell[well][2], cold, itype['WEL']))
+                ssm_data[stp].append(
+                    (cwell[well][0], cwell[well][1], cwell[well][2], cold, itype["CC"])
+                )
+                ssm_data[stp].append(
+                    (cwell[well][0], cwell[well][1], cwell[well][2], cold, itype["WEL"])
+                )
 
-    #ssm for top boundary, combination with recharge
-    crch={}
+    # ssm for top boundary, combination with recharge
+    crch = {}
     for stp in range(nper):
         crch[stp] = []
-        crch[stp].append(T_sin[stp] * np.ones((nrow,ncol),dtype=float))
+        crch[stp].append(T_sin[stp] * np.ones((nrow, ncol), dtype=float))
 
     # write new Ssm package
     flopy.mt3d.Mt3dSsm(
@@ -541,12 +619,12 @@ def FlowTransport(exe_mf: str,
         filenames=filenames,
     )
 
-# Dsp
+    # Dsp
 
     k0_aqf = 0.58 * por_Taqf + 3 * (1 - por_Taqf)  # bulk thermal cond = k𝒘𝜽+ 𝒌𝒔(𝟏 −𝜽)
     mol_diff_aqf = k0_aqf / (por_Taqf * 1000 * 4183)  # k0/(𝜽*rhow*cw)
 
-    dmcoef_new = np.zeros((nlay, 1)) # moet shape (nlay,1) zijn
+    dmcoef_new = np.zeros((nlay, 1))  # moet shape (nlay,1) zijn
     dmcoef = mt.dsp.dmcoef[0].array
     for lay in range(nlay):
         if lay in aqf_layers:
@@ -559,8 +637,8 @@ def FlowTransport(exe_mf: str,
     for lay in aqf_layers:
         al_new[lay] = NewGridValues(nrow, ncol, longitudinal)
 
-    trpt = mt.dsp.trpt.array #ratio hor/long disperion: typically 0.1, do not change
-    trpv = mt.dsp.trpv.array #ratio vert/long dispersion: typically 0.01 do not change
+    trpt = mt.dsp.trpt.array  # ratio hor/long disperion: typically 0.1, do not change
+    trpv = mt.dsp.trpv.array  # ratio vert/long dispersion: typically 0.01 do not change
     extension = "dsp"
     multiDiff = False
     unitnumber = None
@@ -579,11 +657,15 @@ def FlowTransport(exe_mf: str,
         filenames=filenames,
     )
 
-# Rct
+    # Rct
 
-    rhob_aqf = 2650 * (1 - por_Taqf)  # bulk density = density solid * (1-total porosity)
+    rhob_aqf = 2650 * (
+        1 - por_Taqf
+    )  # bulk density = density solid * (1-total porosity)
 
-    therm_distr_aqf = 878 / (4183 * 1000)  # thermal distribution coefficient = spec heat capacity solid/(that of water*density water)
+    # therm_distr_aqf = (
+    #     878 / (4183 * 1000)
+    # )  # thermal distribution coefficient = spec heat capacity solid/(that of water*density water)
 
     extension = "rct"
     isothm = mt.rct.isothm  # linear
@@ -593,13 +675,13 @@ def FlowTransport(exe_mf: str,
     prsity2 = None
     srconc = None
     sp1 = mt.rct.sp1[0].array  # thermal distribution coefficient
-    sp2 = mt.rct.sp2[0].array #read out but not used when isothm is 1
+    sp2 = mt.rct.sp2[0].array  # read out but not used when isothm is 1
     rc1 = None
     rc2 = None
 
     rhob_new = rhob
     for lay in aqf_layers:
-        rhob_new[lay]=NewGridValues(nrow, ncol, rhob_aqf)
+        rhob_new[lay] = NewGridValues(nrow, ncol, rhob_aqf)
 
     # write new Rct package
     flopy.mt3d.Mt3dRct(
@@ -619,15 +701,15 @@ def FlowTransport(exe_mf: str,
         filenames=filenames,
     )
 
-# Adv
+    # Adv
     mixelm = 1  # -1: TVD, 1: MOC
-    percel = mt.adv.percel #courant number
-    nadvfd = 1 #mt.adv.nadvfd
-    npmin = 16 #mt.adv.npmin
-    npmax = 32 #mt.adv.npmax
-    mxpart = 75000000 #mt.adv.mxpart
-    dceps = 1E-005
-    nplane= 0
+    percel = mt.adv.percel  # courant number
+    nadvfd = 1  # mt.adv.nadvfd
+    npmin = 16  # mt.adv.npmin
+    npmax = 32  # mt.adv.npmax
+    mxpart = 75000000  # mt.adv.mxpart
+    dceps = 1e-005
+    nplane = 0
     npl = 0
     nph = 10
     extension = "adv"
@@ -644,8 +726,8 @@ def FlowTransport(exe_mf: str,
         nadvfd=nadvfd,
         dceps=dceps,
         nplane=nplane,
-        npl = npl,
-        nph = nph,
+        npl=npl,
+        nph=nph,
         extension=extension,
         unitnumber=unitnumber,
         filenames=filenames,
@@ -656,41 +738,49 @@ def FlowTransport(exe_mf: str,
     mt.run_model(report=True)
 
     # save deltaT and cbc flow for each run
-    os.rename(os.path.join(results_dir, 'Luik_2Y_temperature.ucn'),
-              os.path.join(results_dir, 'UCN_{}.ucn'.format(run_name)))
-    os.remove(os.path.join(results_dir, 'Luik_2Y_temperature_S.ucn'))
-    os.rename(os.path.join(results_dir, 'Luik_2Y.cbc'),
-              os.path.join(results_dir, 'CBC_{}.cbc'.format(run_name)))
+    os.rename(
+        os.path.join(results_dir, "Luik_2Y_temperature.ucn"),
+        os.path.join(results_dir, "UCN_{}.ucn".format(run_name)),
+    )
+    os.remove(os.path.join(results_dir, "Luik_2Y_temperature_S.ucn"))
+    os.rename(
+        os.path.join(results_dir, "Luik_2Y.cbc"),
+        os.path.join(results_dir, "CBC_{}.cbc".format(run_name)),
+    )
 
     # mto to csv
-    mto_file = 'MTO_{}.csv'.format(run_name)  # save MTO file for each model run
-    T = fpt.mt.Mt3dms.load_obs(os.path.join(results_dir, 'Luik_2Y_temperature.mto'))
-    os.remove(os.path.join(results_dir, 'Luik_2Y_temperature.mto'))
+    mto_file = "MTO_{}.csv".format(run_name)  # save MTO file for each model run
+    T = fpt.mt.Mt3dms.load_obs(os.path.join(results_dir, "Luik_2Y_temperature.mto"))
+    os.remove(os.path.join(results_dir, "Luik_2Y_temperature.mto"))
 
     nlay_aqf = len(aqf_layers)
-    column_names = ['Step','Time(s)']
+    column_names = ["Step", "Time(s)"]
     for lay in range(nlay_aqf):
-        column_names.append('w{}'.format(lay))
-        column_names.append('c{}'.format(lay))
+        column_names.append("w{}".format(lay))
+        column_names.append("c{}".format(lay))
     T = pd.DataFrame(T)
     T.columns = column_names
-    T['Time (d)'] = T['Time(s)'] / 86400
+    T["Time (d)"] = T["Time(s)"] / 86400
 
     # mean Tdifference
-    T['MeanTw'] = T.filter(regex='^w').sum(axis=1) / nlay_aqf
-    T['MeanTc'] = T.filter(regex='^c').sum(axis=1) / nlay_aqf
+    T["MeanTw"] = T.filter(regex="^w").sum(axis=1) / nlay_aqf
+    T["MeanTc"] = T.filter(regex="^c").sum(axis=1) / nlay_aqf
 
-    T['DeltaT'] = T['MeanTw']-T['MeanTc']
-    T['DeltaT_cold'] = temp_initial-T['MeanTc']
-    T['DeltaT_warm'] = T['MeanTw'] - temp_initial
+    T["DeltaT"] = T["MeanTw"] - T["MeanTc"]
+    T["DeltaT_cold"] = temp_initial - T["MeanTc"]
+    T["DeltaT_warm"] = T["MeanTw"] - temp_initial
     T.to_csv(os.path.join(results_dir, mto_file))
 
-    integral_power_by_season, ucn_xr = T_TopAqf(ucn_file = os.path.join(results_dir, 'UCN_{}.ucn'.format(run_name)),
-                    cbc_file = os.path.join(results_dir, 'CBC_{}.cbc'.format(run_name)),
-                    layer_of_interest=9,
-                    gwT_natural = temp_initial)
+    integral_power_by_season, ucn_xr = T_TopAqf(
+        ucn_file=os.path.join(results_dir, "UCN_{}.ucn".format(run_name)),
+        cbc_file=os.path.join(results_dir, "CBC_{}.cbc".format(run_name)),
+        layer_of_interest=9,
+        gwT_natural=temp_initial,
+    )
 
-    ucn_xr.to_netcdf(path = os.path.join(results_dir, 'UCN_XR_{}.nc'.format(run_name)))
-    integral_power_by_season.to_netcdf(path = os.path.join(results_dir, 'EXCHANGE_{}.nc'.format(run_name)))
+    ucn_xr.to_netcdf(path=os.path.join(results_dir, "UCN_XR_{}.nc".format(run_name)))
+    integral_power_by_season.to_netcdf(
+        path=os.path.join(results_dir, "EXCHANGE_{}.nc".format(run_name))
+    )
 
     return mf, mt
