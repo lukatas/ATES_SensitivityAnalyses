@@ -16,7 +16,6 @@ plt.rcParams["figure.dpi"] = 400
 # 116.504 to 116.5: 116.05 to 116.0; 153.11 to 153.0; 153.68 to 153.5
 # (rounding method for Rijkevorsel case study did not work well enough here --> got Nan values)
 
-
 def round_custom(df):
     df["Time (d)"] = df["Time (d)"] * 10
     df["Time (d)"] = df["Time (d)"].apply(math.floor)

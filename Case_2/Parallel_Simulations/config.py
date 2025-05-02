@@ -1,7 +1,5 @@
 import os
 from ATES_SensitivityAnalyses.main import main_dir
-
-
 class Directories:
     """Define main directories and file names"""
 
