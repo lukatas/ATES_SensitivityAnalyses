@@ -17,7 +17,7 @@ from scipy.spatial.distance import pdist, squareform
 from pyDGSA.dgsa import dgsa
 from pyDGSA.dgsa import dgsa_interactions
 from pyDGSA.plot import vert_pareto_plot
-from pyDGSA.plot import plot_cdf, bubble_plot
+from pyDGSA.plot import plot_cdf
 from pyDGSA.plot import interaction_matrix
 from sklearn.cluster import KMeans
 from scipy.stats import gaussian_kde
@@ -32,7 +32,7 @@ plt.rcParams["ytick.labelsize"] = 13
 plt.rcParams["axes.labelsize"] = 13
 
 
-""" load transport results """
+""" load flow results """
 directory = os.path.join(Directories.output_dir, "LH_500_Delta5_40")
 prefix = "HOB"
 prefix2 = "Parameters"
@@ -45,7 +45,7 @@ directories = [
     if os.path.isdir(os.path.join(directory, d))
 ]  # isdir to check if item is a directory
 
-# Iterate through each directory and read all files starting with 'MTO'
+# Iterate through each directory and read all files starting with 'HOB'
 for d in directories:
     files = [f for f in os.listdir(d) if f.startswith(prefix)]
 
@@ -56,6 +56,7 @@ for d in directories:
             skipped_indices.append(
                 directories.index(d)
             )  # a few models did not converge, filter them out
+
         elif response["Qout"].isnull().any() or response["Qout.1"].isnull().any():
             skipped_indices.append(directories.index(d))
 
@@ -63,9 +64,8 @@ for d in directories:
             response.set_index("TOTIM", inplace=True)
 
             if directories.index(d) == 0:
-                h_cwell = response[
-                    ["Qout"]
-                ].copy()  # (something went wrong while writing the input, hcwell and hwwell are now in Qout columns
+                # something went wrong while writing the input, hcwell and hwwell are now in Qout columns
+                h_cwell = response[["Qout"]].copy()
                 h_cwell.rename(columns={"Qout": "0"}, inplace=True)
                 h_wwell = response[["Qout.1"]].copy()
                 h_wwell.rename(columns={"Qout.1": "0"}, inplace=True)
@@ -107,7 +107,7 @@ head.index = head.index.map(str)
 distances = pdist(head, metric="euclidean")
 distances = squareform(distances)  # create distance matrix of size models x models
 
-# different clustering method: KMeans
+# different clustering methods KMeans/KMedoids
 n_clusters = 3
 clusterer = KMeans(n_clusters=n_clusters, max_iter=3000, tol=1e-4)
 # clusterer = KMedoids(n_clusters=n_clusters, max_iter=3000, tol=1e-4)
@@ -116,14 +116,14 @@ labels = clusterer.fit_predict(distances)
 
 # check how many models in each cluster
 print(Counter(labels))
+
 # %%
-# check medoids and deltaT to see which is low/high/medium (medoids in 0,1,2 order)
-# cluster_names = [0,1,2]
+# check medoids and deltaT to see which is low/high/medium cluster (medoids in 0,1,2 order)
+# make sure names and colors are in the correct order
 cluster_names = ["Medium ΔH", "Large ΔH", "Small ΔH"]
 cluster_colors = ["xkcd:beige", "xkcd:coral", "xkcd:blurple"]
 
 # %%
-
 """ DGSA calculations """
 
 parameters = parameters.to_numpy()
@@ -144,83 +144,28 @@ parameter_names = [
 ]
 
 # mean sensitivy averaged across all clusters
-# output = 'mean' (default)
 mean_sensitivity = dgsa(
     parameters, labels, parameter_names=parameter_names, n_boots=5000, confidence=True
 )
 print(mean_sensitivity)
-# %%
-# standardized sensitivity for each individual cluster
-cluster_sensitivity = dgsa(
-    parameters,
-    labels,
-    parameter_names=parameter_names,
-    output="cluster_avg",
-    cluster_names=cluster_names,
-)
-print(cluster_sensitivity)
-
-# %%
 
 # mean sensitivity including two-way parameter interactions (sensitivity values are averaged over each cluster and bin)
-
 mean_interact_sensitivity = dgsa_interactions(
     parameters, labels, parameter_names=parameter_names
 )
 print(mean_interact_sensitivity)
 
-# specify interactions between only a few conditional parameters (here x,y confined to one of the 5 bins)
-sens = dgsa_interactions(
-    parameters,
-    labels,
-    cond_parameters=["Grad.", "Kh aqf"],
-    parameter_names=parameter_names,
-    n_bins=5,
-)
-print(sens)
+# also cluster sensitivity, sensitivity matrix, etc. can be calculated in this way using the pyDGSA package
 
-# %%
-# standardized sensitvity including two-way parameters interactions (st sens values on individual cluster/bin levels)
-
-cluster_interact_sensitivity = dgsa_interactions(
-    parameters,
-    labels,
-    parameter_names=parameter_names,
-    cluster_names=cluster_names,
-    output="cluster_avg",
-)
-print(cluster_interact_sensitivity)
-
-# get it for each individual bin and cluster
-raw_interact_sensitivity = dgsa_interactions(
-    parameters,
-    labels,
-    parameter_names=parameter_names,
-    cluster_names=cluster_names,
-    output="indiv",
-)
-print(raw_interact_sensitivity)
-
-# %%
 
 """ DGSA Plots"""
-
+# %%
 fig, ax = vert_pareto_plot(mean_sensitivity, np_plot="+13", confidence=True)
 plt.tight_layout()
 plt.savefig(os.path.join(Directories.fig_dir, "head sens 80.svg"), format="svg")
 plt.show()
 
-# %%
-# Define the colors for each cluster
-
-fig, ax = vert_pareto_plot(
-    cluster_sensitivity, np_plot=8, fmt="cluster_avg", colors=cluster_colors
-)
-plt.savefig(os.path.join(Directories.fig_dir, "head cluster sens 40.svg"))
-plt.tight_layout()
-plt.show()
-# %% class-conditional cumulative distribution function
-
+# %% class-conditional cumulative distribution function (plotting pdf is also an option-
 fig, ax = plot_cdf(
     parameters,
     labels,
@@ -230,36 +175,15 @@ fig, ax = plot_cdf(
     colors=cluster_colors,
 )
 plt.show()
-# could also plot pdf (probability distribution function)
-# %%
 
-fig, ax = vert_pareto_plot(mean_interact_sensitivity, np_plot="+8")
-plt.tight_layout()
-plt.show()
-# %%
-fig, ax = vert_pareto_plot(
-    cluster_interact_sensitivity, np_plot=20, fmt="cluster_avg", colors=cluster_colors
-)
-plt.tight_layout()
-plt.show()
-# %%
-# Bars with bold ouline represent those for which the sensitivity >= 1.
-fig, ax = vert_pareto_plot(
-    raw_interact_sensitivity, fmt="indiv", colors=cluster_colors, np_plot=8
-)
-plt.tight_layout()
-plt.show()
 # %%
 fig, ax = interaction_matrix(mean_interact_sensitivity, figsize=(5, 5), fontsize=5)
 plt.savefig(os.path.join(Directories.fig_dir, "head sens 80.svg"), format="svg")
 plt.tight_layout()
 plt.show()
-# %% bubble plot
 
-fig, ax = bubble_plot(mean_sensitivity, int_df=mean_interact_sensitivity)
-plt.tight_layout()
-plt.show()
-# %% plot ΔT change with time with cluster colors
+""" plot clusters """
+# %% plot ΔH vs time with cluster colors
 head = head.T
 fig, ax = plt.subplots()
 models = len(directories) - len(skipped_indices)
@@ -279,30 +203,25 @@ for m in range(models):
     ax.grid(axis="y", linewidth=0.5, color="lightgray", zorder=0)
 # plt.savefig(os.path.join(Directories.fig_dir,'clusters_H_40.svg'),format='svg')
 plt.show()
-# %% get svg of legend
-fig, ax = plt.subplots()
-beige = mpatches.Patch(color="xkcd:beige", label="Medium ΔH(t)")
-coral = mpatches.Patch(color="xkcd:coral", label="Large ΔH(t)")
-blurple = mpatches.Patch(color="xkcd:blurple", label="Small ΔH(t)")
-plt.legend(handles=[blurple, beige, coral])
-plt.savefig(os.path.join(Directories.fig_dir, "legend_head.svg"), format="svg")
-plt.show()
-# %% plot parameter vs parameter
+
+""" plot pairwise comparison of parameters and max ΔH """
 
 parameters["transmissivity_aqf"] = parameters["aqf_dz"] * parameters["Kh_aqf"]
 parameters["transmissivity_aqf_m2/d"] = (
     parameters["aqf_dz"] * parameters["Kh_aqf"] * 24 * 3600
 )
+
+# get the maximum head change for each model realization
 new_size = len(directories) - len(skipped_indices)
 new_names = [str(i) for i in range(0, new_size)]
-# Initializing with zeros and ones for example
+# Initialize df
 max_head = pd.DataFrame([[0.0] * new_size], columns=new_names, index=[0])
-
 for h in head:
     max = head[str(h)].max()
     max_head[h] = max
-
 max_headchange = max_head - 6.77
+
+
 fig, ax = plt.subplots()
 for m in range(len(directories) - len(skipped_indices)):
     x = parameters["transmissivity_aqf_m2/d"][m]
@@ -321,7 +240,8 @@ plt.tight_layout()
 plt.savefig(os.path.join(Directories.fig_dir, "head vs transm.svg"), format="svg")
 plt.show()
 
-# %% whithout loop parameter vs parameter and guarantees square plot
+""" guarantees square plot pairwise comparison """
+# %%
 parameters["labels"] = labels
 
 fig, ax = plt.subplots(figsize=(4, 4))
@@ -331,8 +251,7 @@ x = parameters["Kv_aqt"]
 y = parameters["Kh_aqf"]
 
 # This solution is robust against figure size changes in the sense that the grid is always
-# 2.8 + 0.1 + 1 = 3.9 inches wide and heigh.
-# So one just needs to make sure the figure size is always large enough to host the grid.
+# 2.8 + 0.1 + 1 = 3.9 inches width and height.
 horiz = [axes_size.Fixed(2.8), axes_size.Fixed(0.1), axes_size.Fixed(1)]
 vert = [axes_size.Fixed(2.8), axes_size.Fixed(0.1), axes_size.Fixed(1)]
 divider.set_horizontal(horiz)
@@ -341,28 +260,39 @@ divider.set_vertical(vert)
 ax.scatter(x, y, color=np.array(cluster_colors)[parameters["labels"]], s=10)
 # ax.set_xticks(np.arange(0, 5.2E-7, 2E-7))
 ax.grid(which="major", linewidth=0.5, color="gray", zorder=0)
-
 plt.tight_layout()
 plt.savefig(os.path.join(Directories.fig_dir, "Kv aqt vs Kh aqf.svg"), format="svg")
 plt.show()
-# %% 3D plot
-fig = plt.figure()
-ax = plt.axes(projection="3d")
-for m in range(len(directories) - len(skipped_indices)):
-    x = parameters["transmissivity_aqf"][m]
-    y = max_head.T[0][m]
-    z = parameters["flowrate"][m]
-    ax.scatter(x, y, z, label=str(m), color=cluster_colors[labels[m]])
-ax.set_xlabel("transmissivity")
-ax.set_ylabel("max_head")
-ax.set_zlabel("flowrate")
-ax.set_title("parameter interactions")
 
+""" KDE plot of single parameter for each cluster """
+parameters["labels"] = labels
+parameters_0 = parameters[parameters["labels"] == 0]
+parameters_1 = parameters[parameters["labels"] == 1]
+parameters_2 = parameters[parameters["labels"] == 2]
+
+fig, ax = plt.subplots(figsize=(4, 4))
+divider = make_axes_locatable(ax)
+
+horiz = [axes_size.Fixed(2.8), axes_size.Fixed(0.1), axes_size.Fixed(1)]
+vert = [axes_size.Fixed(2.8), axes_size.Fixed(0.1), axes_size.Fixed(1)]
+divider.set_horizontal(horiz)
+divider.set_vertical(vert)
+
+sns.kdeplot(
+    data=parameters_0["Kh_aqf"], shade=True, bw_adjust=1.2, color=cluster_colors[0]
+)
+sns.kdeplot(
+    data=parameters_1["Kh_aqf"], shade=True, bw_adjust=1.2, color=cluster_colors[1]
+)
+sns.kdeplot(
+    data=parameters_2["Kh_aqf"], shade=True, bw_adjust=1.2, color=cluster_colors[2]
+)
+plt.tight_layout()
+plt.savefig(os.path.join(Directories.fig_dir, "kde kh_aqf.svg"), format="svg")
 plt.show()
 
-
-# %% interactive 3d plot without for loop
-
+""" interactive 3D plot to explore relations """
+# %%
 indices = [i for i in range(new_size)]
 
 x = parameters["transmissivity_aqf_m2/d"][indices]
@@ -425,8 +355,9 @@ fig.update_layout(
 
 # Show the interactive plot
 fig.write_html("first_figure_2.0.html", auto_open=True)
-# %% KDE of faces 3d plot
 
+""" KDE of each face of the 3D plot"""
+# %%
 y.index = y.index.astype("float64")
 data_XY = pd.concat([x, y], axis=1)
 data_XY = data_XY.rename(columns={0: "max_head_mTAW"})
@@ -467,100 +398,10 @@ sns.kdeplot(
     cmap="viridis",
     bw_adjust=1.2,
 )
-## add datapoints to plot
-# scatter= plt.scatter(
-#     data=data_YZ,
-#     x='max_head_mTAW',
-#     y='flowrate',
-#     c=x,
-#     cmap='Greens',  # Color the points to make them visible
-#     edgecolor='black',
-#     s=15  # Adjust size of points if needed
-# )
-# plt.colorbar(scatter, label='Transmissivity total aquifer (m²/d)')
 plt.show()
 
-# #%% thanks chat GPT ;)
-# # Step 1: Extract the specific transmissivity value
-# transmissivity_value = data_XY[(data_XY['transmissivity_aqf_m2/d']>21) &
-#                                (data_XY['transmissivity_aqf_m2/d']<22)].reset_index()['transmissivity_aqf_m2/d'][0]
-#
-# # Create a 2D grid for evaluation
-# x_grid = np.linspace(data_XY['transmissivity_aqf_m2/d'].min(),
-#                      data_XY['transmissivity_aqf_m2/d'].max(), 100)
-# y_grid = np.linspace(data_XY['max_head_mTAW'].min(),
-#                      data_XY['max_head_mTAW'].max(), 100)
-# X, Y = np.meshgrid(x_grid, y_grid)
-#
-# # Fit KDE using the data
-# kde = gaussian_kde(data_XY[['transmissivity_aqf_m2/d', 'max_head_mTAW']].T)
-#
-# # Evaluate the KDE on the grid
-# positions = np.vstack([X.ravel(), Y.ravel()])
-# Z = np.reshape(kde(positions), X.shape)
-#
-# # Extract a slice along the specific 'transmissivity_aqf_m2/d' value
-# x_slice = transmissivity_value  # Adjust this to your desired value
-# y_values = y_grid
-# z_slice = kde(np.vstack([np.full_like(y_values, x_slice), y_values]))
-#
-# # Step 2: Compute the CDF for the KDE slice using cumulative trapezoidal integration
-# cdf_slice = cumtrapz(z_slice, y_values, initial=0)
-#
-# # Step 3: Create a figure with two y-axes
-# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-#
-# # Plot the 2D KDE
-# ax1.contourf(X, Y, Z, cmap='viridis')
-# ax1.set_title("2D KDE")
-# ax1.set_xlabel("Total transmissivity aquifer (m²/d)")
-# ax1.set_ylabel("Head change (m)")
-#
-# # Plot the slice on the left y-axis
-# ax2.plot(y_values, z_slice, label=f'Slice at transmissivity={x_slice.round()} m²/d', color='blue')
-# ax2.set_title("1D Slice of KDE")
-# ax2.set_xlabel("Head change (m)")
-# ax2.set_ylabel("Density", color='blue')
-#
-# # Step 4: Plot the CDF on the right y-axis
-# ax3 = ax2.twinx()
-# ax3.plot(y_values, cdf_slice, label='CDF', color='green')
-# ax3.set_ylabel("Cumulative Distribution Function (CDF)", color='green')
-#
-# # Step 5: Adjust layout and show the plot
-# plt.tight_layout()
-# plt.show()
-
-# %% kde plot of a single parameter (for each cluster)
-parameters["labels"] = labels
-parameters_0 = parameters[parameters["labels"] == 0]
-parameters_1 = parameters[parameters["labels"] == 1]
-parameters_2 = parameters[parameters["labels"] == 2]
-
-fig, ax = plt.subplots(figsize=(4, 4))
-divider = make_axes_locatable(ax)
-
-horiz = [axes_size.Fixed(2.8), axes_size.Fixed(0.1), axes_size.Fixed(1)]
-vert = [axes_size.Fixed(2.8), axes_size.Fixed(0.1), axes_size.Fixed(1)]
-divider.set_horizontal(horiz)
-divider.set_vertical(vert)
-
-sns.kdeplot(
-    data=parameters_0["Kh_aqf"], shade=True, bw_adjust=1.2, color=cluster_colors[0]
-)
-sns.kdeplot(
-    data=parameters_1["Kh_aqf"], shade=True, bw_adjust=1.2, color=cluster_colors[1]
-)
-sns.kdeplot(
-    data=parameters_2["Kh_aqf"], shade=True, bw_adjust=1.2, color=cluster_colors[2]
-)
-plt.tight_layout()
-plt.savefig(os.path.join(Directories.fig_dir, "kde kh_aqf.svg"), format="svg")
-plt.show()
-
-# %% 3d to 2d
-
-# Step 1: Create a grid for the evaluation
+""" get 2D slice of 3D KDE plot """
+# Create a grid for the evaluation
 transmissivity_grid = np.linspace(
     data_XY["transmissivity_aqf_m2/d"].min(),
     data_XY["transmissivity_aqf_m2/d"].max(),
@@ -571,22 +412,21 @@ head_change_grid = np.linspace(
 )
 flowrate_grid = np.linspace(data_YZ["flowrate"].min(), data_YZ["flowrate"].max(), 100)
 
-# Create a 3D grid
 X, Y, Z = np.meshgrid(transmissivity_grid, head_change_grid, flowrate_grid)
 
-# Step 2: Prepare data for KDE fitting
+# Prepare data for KDE fitting
 data_combined = np.vstack(
     [data_XY["transmissivity_aqf_m2/d"], data_XY["max_head_mTAW"], data_XZ["flowrate"]]
 ).T
 
-# Step 3: Fit KDE using the combined data
+# Fit KDE using the combined data
 kde = gaussian_kde(data_combined.T)
 
-# Step 4: Evaluate the KDE on the grid
+# Evaluate the KDE on the grid
 positions = np.vstack([X.ravel(), Y.ravel(), Z.ravel()])
 density = kde(positions).reshape(X.shape)
 
-# Step 5: Extract a slice along the specific flow rate value
+# 2D to 1D: extract a slice along the specific flow rate value
 flowrate_value = data_YZ[
     (data_YZ["flowrate"] > 3.4) & (data_YZ["flowrate"] < 3.5)
 ].reset_index()["flowrate"][0]
@@ -594,12 +434,9 @@ flowrate_value = data_YZ[
 slice_index = (
     np.abs(flowrate_grid - flowrate_value)
 ).argmin()  # Get the index of the closest value
-density_slice = density[
-    :, :, slice_index
-]  # This will give you the density for the specific flow rate
+density_slice = density[:, :, slice_index]
 
-
-# %% constrain kde with estimate of transmissivity
+# %% constrain kde with estimate of transmissivity (not required)
 transmissivity_value = data_XY[
     (data_XY["transmissivity_aqf_m2/d"] > 21)
     & (data_XY["transmissivity_aqf_m2/d"] < 22)
@@ -609,8 +446,7 @@ transmissivity_index = np.argmin(np.abs(transmissivity_grid - transmissivity_val
 # Extract the density values for the chosen transmissivity (column in density_slice)
 density_for_chosen_transmissivity = density_slice[transmissivity_index, :]
 
-# %% plots
-# Plot the density values against max head change
+# 1D Plot the density values vs max head change
 plt.plot(head_change_grid, density_for_chosen_transmissivity)
 plt.xlabel("Max Head Change")
 plt.ylabel("Density")
@@ -621,7 +457,7 @@ plt.savefig(os.path.join(Directories.fig_dir, "kde fl 3.svg"), format="svg")
 plt.tight_layout()
 plt.show()
 
-# 2D slice for a specific flow rate with indication of transmissivity estimate
+# 2D plot head vs transmissivity constrained by a specific flow rate
 fig, ax = plt.subplots(figsize=(7, 6))
 contour = ax.contourf(
     transmissivity_grid, head_change_grid, density_slice.T, cmap="viridis"
@@ -636,20 +472,10 @@ plt.axvline(transmissivity_value, color="white", linewidth=2)
 plt.tight_layout()
 plt.show()
 
-# %% calculate probability of exceeding a certain max head change
-
+""" calculate probability of exceeding a certain max head change """
 # normalize area under curve
 area_under_curve = np.trapz(density_for_chosen_transmissivity, head_change_grid)
 normalized_density = density_for_chosen_transmissivity / area_under_curve
-
-plt.plot(head_change_grid, normalized_density)
-plt.xlabel("Max Head Change")
-plt.ylabel("Normalized Density")
-plt.title(
-    f"Flowrate = {flowrate_value.round(2)} m³/h, Transmissivity = {transmissivity_value.round()}"
-)
-plt.tight_layout()
-plt.show()
 
 # cumulative distribution function (CDF)
 cumulative_density = np.cumsum(normalized_density) * np.diff(
@@ -659,32 +485,27 @@ cumulative_density = np.cumsum(normalized_density) * np.diff(
 # Find the index where the CDF reaches or exceeds 0.5
 p50_index = np.searchsorted(cumulative_density, 0.5)
 
-# Get the corresponding head change value
+# Get head change value for that index
 p50_value = head_change_grid[p50_index]
 
 print(f"P50 Max Head Change: {p50_value:.2f}")
 
-## instead of getting head change for P50/P90, get probability of exceeding certain head change
+""" instead of getting head change for P50/P90, get probability of exceeding certain head change """
 
-# head change value of interest
 head_value_of_interest = 7.5
-
-# Find the index of the closest value in the head_change_grid
 closest_index = np.argmin(np.abs(head_change_grid - head_value_of_interest))
 
-# Retrieve the corresponding normalized density value
+# Get corresponding normalized density value
 probability_density = normalized_density[closest_index]
 
-# Ensure the lengths of head_change_grid and normalized_density match
+# Check: ensure the lengths of head_change_grid and normalized_density match
 if len(head_change_grid) != len(normalized_density):
     raise ValueError(
         "The lengths of head_change_grid and normalized_density do not match!"
     )
 
-# Calculate the width of each interval in head_change_grid
+# Calculate the width of each interval in head_change_grid and cumulative probability
 interval_widths = np.diff(head_change_grid, prepend=head_change_grid[0])
-
-# Compute the cumulative probability up to the head value
 cumulative_probability = np.sum(
     normalized_density[: closest_index + 1] * interval_widths[: closest_index + 1]
 )
@@ -696,4 +517,11 @@ print(
     f"Cumulative Probability up to Head Change {head_value_of_interest}: {cumulative_probability:.4f}"
 )
 
-# %%
+""" Editable legends """
+fig, ax = plt.subplots()
+beige = mpatches.Patch(color="xkcd:beige", label="Medium ΔH(t)")
+coral = mpatches.Patch(color="xkcd:coral", label="Large ΔH(t)")
+blurple = mpatches.Patch(color="xkcd:blurple", label="Small ΔH(t)")
+plt.legend(handles=[blurple, beige, coral])
+plt.savefig(os.path.join(Directories.fig_dir, "legend_head.svg"), format="svg")
+plt.show()
