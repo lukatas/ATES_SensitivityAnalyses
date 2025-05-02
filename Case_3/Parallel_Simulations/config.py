@@ -45,7 +45,7 @@ class ModelParameters:
     gradient_min: float = 0  # in %
     gradient_max: float = 0.3
 
-    """ thickness aquifer """  # komt overeen met +/- 2 dikte Yd4 (+/-21 procent verschil)
+    """ thickness aquifer """  # equal to +/- 2 Yd4 thickness (+/-21% difference)
     aqf_dz_min: float = 14.7
     aqf_dz_max: float = 22.3
 
