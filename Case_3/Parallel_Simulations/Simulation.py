@@ -4,11 +4,11 @@ import os
 import shutil
 from os.path import join as jp
 from loguru import logger
-from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.config import Directories
-from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.Rijkevorsel_FlowTransport import (
+from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.config import Directories
+from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.Campus_FlowTransport import (
     FlowTransport,
 )
-from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.utils import (
+from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.utils import (
     dirmaker,
     keep_essential,
 )
@@ -19,10 +19,10 @@ def forward_modelling(**kwargs):
     # Extract the required keyword arguments
     sample_point = kwargs.get("sample_point")
 
-    # Main results directory name (random)
+    # Main results directory.
     res_dir = uuid.uuid4().hex
 
-    # Create the result directory
+    # Generates the result director
     results_dir = jp(Directories.output_dir, res_dir)
     dirmaker(results_dir)
 
@@ -37,14 +37,19 @@ def forward_modelling(**kwargs):
             exe_mt=Directories.exe_mt_dir,
             sim_ws=Directories.ws_dir,
             results_dir=results_dir,
-            Kh_aqf1=sample_point[0],
-            Kh_aqf2=sample_point[1],
-            Kv_aqf1=sample_point[0] / sample_point[2],
-            Kv_aqf2=sample_point[1] / sample_point[2],
+            Kh_aqf=sample_point[0],
+            Kh_aqt=sample_point[1],
+            Kv_aqf=sample_point[0] / sample_point[2],
+            Kv_aqt=sample_point[1] / sample_point[2],
             gradient=sample_point[3],
             por_Taqf=sample_point[4],
-            por_Eaqf=sample_point[4] * sample_point[5],
-            longitudinal=sample_point[6],
+            por_Taqt=sample_point[5],
+            por_Eaqf=sample_point[4] * sample_point[6],
+            por_Eaqt=sample_point[5] * sample_point[7],
+            longitudinal=sample_point[8],
+            aqf_dz=sample_point[9],
+            deltaT_inj=sample_point[10],
+            flowrate=sample_point[11],
         )
 
     # Deletes everything except final results
@@ -53,6 +58,10 @@ def forward_modelling(**kwargs):
 
     if kwargs["flush"]:
         keep_essential(results_dir)
+        # else:
+    #     shutil.rmtree(results_dir)
+    #     logger.info(f"terminated {res_dir}")
+    #     return 0
 
     # copy data from scratch to data directory for long-term storage
     source_path = results_dir

@@ -5,21 +5,24 @@ Created on Tue May 16 09:08:19 2023
 """
 
 import uuid
-from os.path import join as jp
-from loguru import logger
 import time
 import os
 import shutil
-
-from config import Directories
-from Luik_FlowTransport import FlowTransport
-from utils import dirmaker, keep_essential
+from os.path import join as jp
+from loguru import logger
+from ATES_SensitivityAnalyses.Case_2.Parallel_Simulations.config import Directories
+from ATES_SensitivityAnalyses.Case_2.Parallel_Simulations.Luik_FlowTransport import (
+    FlowTransport,
+)
+from ATES_SensitivityAnalyses.Case_2.Parallel_Simulations.utils import (
+    dirmaker,
+    keep_essential,
+)
 
 
 def forward_modelling(**kwargs):
     """Data collection"""
     # Extract the required keyword arguments
-    n_sim = kwargs.get("n_sim")
     sample_point = kwargs.get("sample_point")
 
     # Generates the result director
@@ -45,11 +48,11 @@ def forward_modelling(**kwargs):
             gradient=sample_point[3],
             por_Taqf=sample_point[4],
             por_Eaqf=sample_point[4] * sample_point[5],
-            volume = sample_point[6],
-            longitudinal = sample_point[7],
-            Twinter = sample_point[8],
-            Tzomer = sample_point[9],
-            Rch = sample_point[10]
+            volume=sample_point[6],
+            longitudinal=sample_point[7],
+            Twinter=sample_point[8],
+            Tzomer=sample_point[9],
+            Rch=sample_point[10],
         )
 
     # Deletes everything except final results

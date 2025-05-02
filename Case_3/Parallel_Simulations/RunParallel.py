@@ -1,14 +1,20 @@
 #! /usr/bin/env python3
 
-import time
-import multiprocessing as mp
-import queue
-from scipy.stats import qmc
 from loguru import logger
-from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.Simulation import (
+import time
+import queue  # Add this import for queue.Empty
+import multiprocessing as mp
+from scipy.stats import qmc
+from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.Simulation import (
     forward_modelling,
 )
-from ATES_SensitivityAnalyses.Case_1.Parallel_Simulations.config import ModelParameters
+from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.config import ModelParameters
+
+"""The script creates n_cpu (36 in this case) worker processes, each assigned a unique process_id.
+Each worker process runs in an infinite loop (while True)
+ until there are no more sample points in the queue. Inside this loop,
+ it retrieves a sample point from the queue, performs a simulation using forward_modelling,
+  and repeats until the queue is empty."""
 
 
 def worker_process(process_id, sample_queue, n_sim, kwargs):
@@ -34,8 +40,8 @@ if __name__ == "__main__":
     mp.set_start_method("spawn")
     start = time.time()
 
-    n_cpu = 2  # Number of processes available
-    n_sim = 3  # Number of simulations you want to run
+    n_cpu = 36  # Number of processes
+    n_sim = 500  # Number of simulations
     kwargs = {
         "folder": 0,
         "pool": True,
@@ -47,22 +53,33 @@ if __name__ == "__main__":
 
     # Scale the sample to the appropriate bounds & Generate the sample points in the hypercube space
     l_bounds = [
-        ModelParameters.Kh_aqf1_min,
-        ModelParameters.Kh_aqf2_min,
+        ModelParameters.Kh_aqf_min,
+        ModelParameters.Kh_aqt_min,
         ModelParameters.Kv_from_Kh_min,
         ModelParameters.gradient_min,
         ModelParameters.por_Taqf_min,
+        ModelParameters.por_Taqt_min,
         ModelParameters.effective_aqf_min,
+        ModelParameters.effective_aqt_min,
         ModelParameters.longitudinal_min,
+        ModelParameters.aqf_dz_min,
+        ModelParameters.deltaT_inj_min,
+        ModelParameters.flowrate_min,
     ]
+
     u_bounds = [
-        ModelParameters.Kh_aqf1_max,
-        ModelParameters.Kh_aqf2_max,
+        ModelParameters.Kh_aqf_max,
+        ModelParameters.Kh_aqt_max,
         ModelParameters.Kv_from_Kh_max,
         ModelParameters.gradient_max,
         ModelParameters.por_Taqf_max,
+        ModelParameters.por_Taqt_max,
         ModelParameters.effective_aqf_max,
+        ModelParameters.effective_aqt_max,
         ModelParameters.longitudinal_max,
+        ModelParameters.aqf_dz_max,
+        ModelParameters.deltaT_inj_max,
+        ModelParameters.flowrate_max,
     ]
 
     sampler = qmc.LatinHypercube(d=len(l_bounds))

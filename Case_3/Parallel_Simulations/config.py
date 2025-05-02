@@ -12,47 +12,51 @@ class Directories:
     exe_mt_dir: str = os.path.join(cwd, "Software", "mt3dusgs1.1.0u", "mt3dusgs")
     ws_dir: str = os.path.join(cwd, "Models")
     output_dir: str = os.path.join(od, "Output")
-    output_dir_lt: str = os.path.join(od_lt, "Luik", "Output")  # long term storage
+    output_dir_lt: str = os.path.join(od_lt, "Campus", "Output_Delta5_60")
+    fig_dir: str = os.path.join(cwd, "figures_svg")
 
 
 class ModelParameters:
-    """K (upper and lower part aquifer)"""
+    """K (aquifer vs aquitard)"""
 
-    Kh_aqf1_min: float = 1e-05
-    Kh_aqf1_max: float = 1e-03
+    Kh_aqf_min: float = 5e-06
+    Kh_aqf_max: float = 5e-05
 
-    Kh_aqf2_min: float = 1e-03
-    Kh_aqf2_max: float = 1e-01
+    Kh_aqt_min: float = 1e-08
+    Kh_aqt_max: float = 1e-06
 
     Kv_from_Kh_min: float = 2  # divide Kh by this factor to het Kv
     Kv_from_Kh_max: float = 10
 
     """ porosity (aquifer vs aquitard) """
-    por_Taqf_min: float = 0.25
+    por_Taqf_min: float = 0.20  # clayey sand
     por_Taqf_max: float = 0.50
+
+    por_Taqt_min: float = 0.40  # sandy clay
+    por_Taqt_max: float = 0.70
 
     effective_aqf_min: float = 0.5
     effective_aqf_max: float = 0.8
 
+    effective_aqt_min: float = 0.05
+    effective_aqt_max: float = 0.20
+
     """ gradient """  # in %
-    gradient_min: float = 0
-    gradient_max: float = 0.2
+    gradient_min: float = 0  # in %
+    gradient_max: float = 0.3
+
+    """ thickness aquifer """  # komt overeen met +/- 2 dikte Yd4 (+/-21 procent verschil)
+    aqf_dz_min: float = 14.7
+    aqf_dz_max: float = 22.3
 
     """ dispersion """
-    longitudinal_min: float = 0.5
+    longitudinal_min: float = 1
     longitudinal_max: float = 5
 
-    """ volume """
-    volume_min: float = 12500
-    volume_max: float = 200000
+    """ deltaT_inj """
+    deltaT_inj_min: float = 5
+    deltaT_inj_max: float = 7
 
-    """ Ttop """
-    Twinter_min: float = 2.5
-    Twinter_max: float = 8
-
-    Tzomer_min: float = 15
-    Tzomer_max: float = 20.5
-
-    """ recharge """
-    Rch_min: float = 5.28e-09
-    Rch_max: float = 8.46e-09
+    """ flowrate """
+    flowrate_min: float = 3
+    flowrate_max: float = 6
