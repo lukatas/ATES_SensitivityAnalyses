@@ -14,7 +14,6 @@ def dirmaker(dird: str, erase: bool = False):
     Given a folder path, check if it exists, and if not, creates it.
     :param dird: str: Directory path.
     :param erase: bool: Whether to delete existing folder or not.
-    :return:
     """
     try:
         if not os.path.exists(dird):

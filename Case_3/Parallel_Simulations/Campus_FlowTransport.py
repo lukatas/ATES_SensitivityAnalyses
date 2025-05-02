@@ -363,7 +363,7 @@ def FlowTransport(
     )
 
     # Chd
-    # gradient laten varieren rond originele
+    # modify gradient around original one
     NB = 6.14
     SB = 7.4
     change_original = SB - NB
@@ -423,6 +423,7 @@ def FlowTransport(
 
     # MNW2
     # flopy is zero based-Modelmuse is not, choose right col and row number (zero based)!
+    # need to adjust this for different well spacings
     wwell_i = 42
     wwell_j = 84
     cwell_i = 42
@@ -595,7 +596,6 @@ def FlowTransport(
     mf.run_model(silent=False, report=True)
 
     # Btn
-
     # times = np.cumsum(perlen)
     MFStyleArr = False
     DRYCell = False
@@ -732,7 +732,8 @@ def FlowTransport(
     cold = temp_initial - 5
 
     # wells
-    # get the well locations (lay, row, col) in the zero-based grid (>< lambert coordinates) !condition: all wells already active in first stress period!
+    # get the well locations (lay, row, col) in the zero-based grid (>< lambert coordinates)
+    # !condition: all wells already active in first stress period!
     ATES_layers = [Yd6, Yd4, Yd2]
     wwell = []
     cwell = []
