@@ -152,32 +152,7 @@ for d in directories:
     case["deltaT_cold"] = deltaT_cold["{}".format(directories.index(d))]
 
     # get for every time to which season it belongs
-    months_ends = [
-        31,
-        62,
-        92,
-        103,
-        123,
-        153,
-        184,
-        215,
-        246,
-        277,
-        307,
-        318,
-        338,
-        368,
-        399,
-        430,
-        461,
-        492,
-        522,
-        533,
-        553,
-        583,
-        614,
-        645,
-    ]
+    months_ends = [31,62,92,103,123,153,184,215,246,277,307,318,338,368,399,430,461,492,522,533,553,583,614,645]
 
     season_ends = [103, 215, 318, 430, 533, 645]
 
@@ -231,32 +206,10 @@ for d in directories:
 
     # P:kW
     # 1.16 is volumetric heat capacity of the groundwater 4.18MJ/(m3 K) (which is the same as 1.16 kWh/(m3K))
-    Q = [
-        0.002328816,
-        0.001254391,
-        0.00013642,
-        0.000200011,
-        0.000323212,
-        0.000451053,
-        0.000551673,
-        0.000948495,
-        0.002328816,
-        0.001254391,
-        0.00013642,
-        0.000200011,
-        0.000323212,
-        0.000451053,
-        0.000551673,
-        0.000948495,
-        0.002328816,
-        0.001254391,
-        0.00013642,
-        0.000200011,
-        0.000323212,
-        0.000451053,
-        0.000551673,
-        0.000948495,
-    ]  # total rates per stress period (3 cycles)
+    Q = [0.002328816,0.001254391,0.00013642,0.000200011,0.000323212,0.000451053,0.000551673,0.000948495,0.002328816,
+         0.001254391,0.00013642,0.000200011,0.000323212,0.000451053,0.000551673,0.000948495,0.002328816,0.001254391,
+         0.00013642,0.000200011,0.000323212,0.000451053,0.000551673,0.000948495]
+        # total rates per stress period (3 cycles)
 
     Q = [rate * 3600 for rate in Q]  # m3/h
 
@@ -280,9 +233,8 @@ for d in directories:
     # integrate injection and extraction power over time to get the energy
     E_extr = np.zeros(max_seasons)
     for s in range(max_seasons):
-        when = np.where(seasons == s)[
-            0
-        ]  # get indices to get data from power for this all months of this season
+        # get indices to get data from power for this all months of this season
+        when = np.where(seasons == s)[0]
         pim = P_extr[when]  # get power at all months from season s
         dam = hours[when]  # get corresponding hours
 
@@ -318,9 +270,8 @@ for d in directories:
         E_inj_df = pd.DataFrame(data, columns=column_names, index=[0, 1, 2, 3, 4, 5])
         E_extr_df = pd.DataFrame(data, columns=column_names, index=[0, 1, 2, 3, 4, 5])
 
-    E_inj_df[str(directories.index(d))] = (
-        E_inj  # to check you can calculate this manually as well based on input ((T-Tinitial)*time (h) * flowrate (m3/h) * 1.16)
-    )
+    E_inj_df[str(directories.index(d))] = E_inj
+    # to check you can calculate this manually as well based on input ((T-Tinitial)*time (h) * flowrate (m3/h) * 1.16)
     E_extr_df[str(directories.index(d))] = E_extr
 
 parameters = parameters.drop(columns=["Unnamed: 0"])
