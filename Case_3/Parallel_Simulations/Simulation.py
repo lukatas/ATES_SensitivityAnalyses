@@ -16,10 +16,10 @@ from ATES_SensitivityAnalyses.Case_3.Parallel_Simulations.utils import (
 
 def forward_modelling(**kwargs):
     """Data collection"""
-    # Extract the required keyword arguments
+
     sample_point = kwargs.get("sample_point")
 
-    # Main results directory.
+    # results directory.
     res_dir = uuid.uuid4().hex
 
     # Generates the result director
@@ -52,7 +52,7 @@ def forward_modelling(**kwargs):
             flowrate=sample_point[11],
         )
 
-    # Deletes everything except final results
+    # deletes everything except final results
     hl = (time.time() - start_fwd) // 60
     logger.info(f"done in {hl} min")
 
