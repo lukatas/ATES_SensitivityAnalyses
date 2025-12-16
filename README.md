@@ -126,7 +126,8 @@ Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang
 
 - Case 3
 
-Tas, L., Caers, J., Hermans, T. (2025) Decision-making under uncertainty for shallow geothermal systems in complex subsurface settings: application to a low-transmissivity aquifer - Supporting Dataset. [Dataset] Zenodo.https://doi.org/10.5281/zenodo.15119420
+Tas, L., Caers, J., Hermans, T. (2025) Decision-making under uncertainty for shallow geothermal systems in complex subsurface settings: application to a low-transmissivity aquifer - Supporting Dataset. [Dataset] Zenodo. https://doi.org/10.5281/zenodo.15119419
+
 ## 💭 Questions
 
 Don't hesitate to reach out in case of questions!
