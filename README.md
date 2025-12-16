@@ -108,7 +108,8 @@ Tas, L., Hartog, N., Bloemendal, M., Simpson, D., Robert, T., Thibaut, R., Zhang
 
 - Case 3
 
-To be completed after publishing: Tas, L., Caers, J., Hermans, T. Decision-making under uncertainty for shallow geothermal systems in complex subsurface settings: application to a low-transmissivity aquifer. [Under review in Geothermics]
+Tas, L., Caers, J., Hermans, T. Decision-making under uncertainty for LT-ATES systems in complex subsurface settings: application to a low-transmissivity aquifer. Advances in Water Resources, 207, 105193 (2026). https://doi.org/10.1016/j.advwatres.2025.105193
+
 ### The code:
 - Case 1 and 2
 
